@@ -39,7 +39,7 @@ export default function OverviewPage() {
   useEffect(() => {
     // try to get geolocation (user must allow)
     if (typeof navigator !== 'undefined' && navigator.geolocation) {
-      const id = navigator.geolocation.getCurrentPosition(
+      navigator.geolocation.getCurrentPosition(
         (pos) => {
           const p: [number, number] = [pos.coords.latitude, pos.coords.longitude];
           setUserPos(p);
@@ -49,9 +49,8 @@ export default function OverviewPage() {
         },
         { enableHighAccuracy: false, maximumAge: 1000 * 60 * 5, timeout: 5000 }
       );
-      return () => {
-        try { navigator.geolocation.clearWatch && navigator.geolocation.clearWatch(id as any); } catch (e) {}
-      };
+      // no cleanup necessary for getCurrentPosition
+      return;
     }
     setUserPos(null);
   }, []);
@@ -65,8 +64,11 @@ export default function OverviewPage() {
         const coords = s.location?.coordinates;
         if (!coords || coords.length < 2) continue;
         const dist = haversine(userPos, [coords[0], coords[1]]);
+        // debug log
+        try { console.debug('distance to', s.name, coords, dist); } catch (e) {}
         if (dist < bestDist) { bestDist = dist; best = { station: s, dist }; }
       }
+      try { console.debug('userPos', userPos, 'best', best?.station?.name, 'bestDist', bestDist); } catch (e) {}
       setNearest(best);
     } else {
       // fallback: pick first station
