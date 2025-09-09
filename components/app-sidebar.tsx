@@ -47,7 +47,7 @@ const data = {
     },
     {
       title: "Stations",
-      url: "#",
+      url: "/stations",
       icon: IconDatabase,
     },
   ],
