@@ -1,7 +1,8 @@
 "use client";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import React from "react";
+import { useRouter } from 'next/navigation';
 import stationData from "@/data/station.json";
 import L from 'leaflet';
 
@@ -36,6 +37,7 @@ function FitBounds({ coordsList, meanCenter, bounds, zoom }: { coordsList: [numb
 
 export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 12, height = 450 }: { center?: [number, number]; zoom?: number; height?: number }) {
   const [ready, setReady] = React.useState(false);
+  const router = useRouter();
   React.useEffect(() => {
     if (typeof window !== "undefined") {
   // Use a RAF to avoid SSR rendering differences
@@ -92,16 +94,21 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 12, hei
           });
 
           return (
-            <Marker key={slug || i} position={[lat, lon]} icon={icon}>
-              <Popup>
-                <div className="max-w-xs">
-                  <div className="font-bold">{s.name}</div>
-                  <div className="text-xs text-gray-500">{lat}, {lon}</div>
-                  <div className="mt-2">
-                    <a className="text-accent underline" href={`/stations/${slug}`}>Details</a>
+            <Marker
+              key={slug || i}
+              position={[lat, lon]}
+              icon={icon}
+              eventHandlers={{ click: () => router.push(`/stations/${slug}`) }}
+            >
+              <Tooltip direction="top" offset={[0, -52]} opacity={1}>
+                <div className="w-64">
+                  <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-3">
+                    <div className="font-bold">{s.name}</div>
+                    <div className="text-xs text-gray-500">{lat}, {lon}</div>
+                    <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{s.info}</p>
                   </div>
                 </div>
-              </Popup>
+              </Tooltip>
             </Marker>
           );
         })}
