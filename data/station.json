@@ -4,11 +4,11 @@
 			"name": "Badesteg Reventlou",
 			"info": "Badesteg Reventlou station (public bathing pier).",
 		"email": "badesteg@example.com",
-		"phone": "+49 4301 000000",
+		"phone": "+49 4301 000001",
 		"website": "https://example.com/badesteg-reventlou",
 			"location": {
 				"type": "Point",
-				"coordinates": [54.32, 10.12]
+				"coordinates": [54.3323, 10.1519]
 			}
 		},
 		{
@@ -19,7 +19,7 @@
 		"website": "https://example.com/flensburg",
 			"location": {
 				"type": "Point",
-				"coordinates": [54.7833, 9.4333]
+				"coordinates": [54.792324, 9.43771]
 			}
 		},
 		{
@@ -30,7 +30,7 @@
 		"website": "https://example.com/kappeln",
 			"location": {
 				"type": "Point",
-				"coordinates": [54.7833, 9.9667]
+				"coordinates": [54.671196, 9.941012]
 			}
 		},
 		{
@@ -41,7 +41,7 @@
 		"website": "https://example.com/luebeck",
 			"location": {
 				"type": "Point",
-				"coordinates": [53.8689, 10.6873]
+				"coordinates": [53.872938, 10.682379]
 			}
 		},
 		{
@@ -52,7 +52,7 @@
 		"website": "https://example.com/schilksee",
 			"location": {
 				"type": "Point",
-				"coordinates": [54.4197, 10.1694]
+				"coordinates": [54.429556, 10.1711]
 			}
 		},
 		{
@@ -63,7 +63,7 @@
 		"website": "https://example.com/marina-heiligenhafen",
 			"location": {
 				"type": "Point",
-				"coordinates": [54.3433, 11.0078]
+				"coordinates": [54.37381, 10.98585]
 			}
 		}
 	]

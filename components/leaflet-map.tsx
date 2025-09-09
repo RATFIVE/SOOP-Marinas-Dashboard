@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import React from "react";
 import stationData from "@/data/station.json";
+import L from 'leaflet';
 
 function slugify(name: string) {
   return name
@@ -19,8 +20,9 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 12, hei
   const [ready, setReady] = React.useState(false);
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      let raf = requestAnimationFrame(() => setReady(true));
-      return () => cancelAnimationFrame(raf);
+  // Use a RAF to avoid SSR rendering differences
+  let raf = requestAnimationFrame(() => setReady(true));
+  return () => cancelAnimationFrame(raf);
     }
   }, []);
   if (typeof window === "undefined" || !ready) return <div style={{ width: "100%", height }} />;
@@ -37,8 +39,23 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 12, hei
           const lat = coords[0];
           const lon = coords[1];
           const slug = slugify(s.name);
+          // use a DivIcon with inline SVG to avoid loading external PNG assets from node_modules
+          const svg = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 24 24">
+              <path d="M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z" fill="#2563eb"/>
+              <circle cx="12" cy="9" r="2.5" fill="#ffffff"/>
+            </svg>
+          `;
+          const icon = L.divIcon({
+            html: svg,
+            className: '',
+            iconSize: [28, 36],
+            iconAnchor: [14, 36],
+            popupAnchor: [0, -36],
+          });
+
           return (
-            <Marker key={slug || i} position={[lat, lon]}>
+            <Marker key={slug || i} position={[lat, lon]} icon={icon}>
               <Popup>
                 <div className="max-w-xs">
                   <div className="font-bold">{s.name}</div>
