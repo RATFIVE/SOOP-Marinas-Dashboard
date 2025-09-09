@@ -6,10 +6,62 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import dynamic from "next/dynamic";
+import stationData from '@/data/station.json';
+import { useEffect, useState } from 'react';
+
+function toRad(v: number) { return v * Math.PI / 180; }
+function haversine([lat1, lon1]: [number, number], [lat2, lon2]: [number, number]) {
+  const R = 6371; // km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
 
 const LeafletMap = dynamic(() => import("@/components/leaflet-map"), { ssr: false });
 
 export default function OverviewPage() {
+  const [userPos, setUserPos] = useState<[number, number] | null>(null);
+  const [nearest, setNearest] = useState<any | null>(null);
+
+  useEffect(() => {
+    // try to get geolocation (user must allow)
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      const id = navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const p: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+          setUserPos(p);
+        },
+        () => {
+          setUserPos(null);
+        },
+        { enableHighAccuracy: false, maximumAge: 1000 * 60 * 5, timeout: 5000 }
+      );
+      return () => {
+        try { navigator.geolocation.clearWatch && navigator.geolocation.clearWatch(id as any); } catch (e) {}
+      };
+    }
+    setUserPos(null);
+  }, []);
+
+  useEffect(() => {
+    const stations = (stationData as any).stations || [];
+    if (userPos) {
+      let best = null;
+      let bestDist = Infinity;
+      for (const s of stations) {
+        const coords = s.location?.coordinates;
+        if (!coords || coords.length < 2) continue;
+        const dist = haversine(userPos, [coords[0], coords[1]]);
+        if (dist < bestDist) { bestDist = dist; best = { station: s, dist }; }
+      }
+      setNearest(best);
+    } else {
+      // fallback: pick first station
+      if (stations.length > 0) setNearest({ station: stations[0], dist: null });
+    }
+  }, [userPos]);
   return (
     <SidebarProvider
       style={
@@ -31,30 +83,42 @@ export default function OverviewPage() {
                 <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
                   <h2 className="text-lg font-semibold mb-4">Nearest Station</h2>
                   <div>
-                    <div className="font-bold text-base mb-1">Kiel Harbour</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">54.3233, 10.1228</div>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Average Wind</div>
-                        <div className="font-semibold">12.3 m/s</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Temperature</div>
-                        <div className="font-semibold">17.8 °C</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Water Level</div>
-                        <div className="font-semibold">0.42 m</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Salinity</div>
-                        <div className="font-semibold">14.2 PSU</div>
-                      </div>
-                    </div>
-                    <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
-                    <div className="flex justify-end">
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow transition-colors">More Details</button>
-                    </div>
+                    {nearest ? (
+                      (() => {
+                        const s = nearest.station;
+                        const coords = s.location?.coordinates || [];
+                        return (
+                          <>
+                            <div className="font-bold text-base mb-1">{s.name}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">{coords[0]}, {coords[1]}</div>
+                            <div className="grid grid-cols-2 gap-4 mt-2">
+                              <div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">Average Wind</div>
+                                <div className="font-semibold">—</div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">Temperature</div>
+                                <div className="font-semibold">—</div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">Water Level</div>
+                                <div className="font-semibold">—</div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">Salinity</div>
+                                <div className="font-semibold">—</div>
+                              </div>
+                            </div>
+                            <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
+                            <div className="flex justify-center">
+                              <a href={`/stations/${(s.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow transition-colors">More Details</a>
+                            </div>
+                          </>
+                        );
+                      })()
+                    ) : (
+                      <div>Keine Station verfügbar.</div>
+                    )}
                   </div>
                 </div>
               </div>
