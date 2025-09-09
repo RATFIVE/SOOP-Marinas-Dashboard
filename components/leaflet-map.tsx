@@ -102,7 +102,7 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 12, hei
               <Marker position={position} icon={icon} eventHandlers={{ click: () => router.push(`/stations/${slug}`) }}>
                 {paneReady ? (
                   <Tooltip direction="top" offset={[0, -52]} opacity={1}>
-                    <div className="w-64">
+                    <div className="inline-block max-w-xs">
                       <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-3">
                         <div className="font-bold">{station.name}</div>
                         <div className="text-xs text-gray-500">{position[0]}, {position[1]}</div>
