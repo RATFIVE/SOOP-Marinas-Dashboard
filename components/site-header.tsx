@@ -35,7 +35,6 @@ export function SiteHeader() {
         />
         {breadcrumb}
         <div className="ml-auto flex items-center gap-2">
-          <ThemeSelector />
           <ModeToggle />
         </div>
       </div>
