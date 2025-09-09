@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
+const isProd = process.env.NODE_ENV === 'production';
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig = {
+  output: 'export',           // ← wichtig!
+  basePath: isProd ? '/dashboard' : '',
+  images: { unoptimized: true },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
