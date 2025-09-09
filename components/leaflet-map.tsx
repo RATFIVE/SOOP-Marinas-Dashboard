@@ -98,7 +98,7 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 12, hei
                   <div className="font-bold">{s.name}</div>
                   <div className="text-xs text-gray-500">{lat}, {lon}</div>
                   <div className="mt-2">
-                    <a className="text-blue-600 underline" href={`/stations/${slug}`}>Details</a>
+                    <a className="text-accent underline" href={`/stations/${slug}`}>Details</a>
                   </div>
                 </div>
               </Popup>

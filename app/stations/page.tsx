@@ -80,7 +80,7 @@ export default function StationsPage() {
                         </div>
                         <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
                         <div className="flex justify-center">
-                          <a href={`/stations/${station.slug}`} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow transition-colors">More Details</a>
+                          <a href={`/stations/${station.slug}`} className="bg-primary text-primary-foreground hover:opacity-90 font-semibold py-2 px-4 rounded shadow transition-colors">More Details</a>
                         </div>
                       </div>
                     </div>

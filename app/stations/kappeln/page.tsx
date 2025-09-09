@@ -46,7 +46,7 @@ export default function KappelnPage() {
             <p className="mb-2 text-gray-700 dark:text-gray-300">{station.info}</p>
             <div className="mb-1 text-sm"><span className="font-semibold">Mail:</span> {station.email}</div>
             <div className="mb-1 text-sm"><span className="font-semibold">Phone:</span> {station.phone}</div>
-            <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a className="text-blue-600" href={station.website} target="_blank" rel="noreferrer">{station.website}</a></div>
+            <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a className="text-accent" href={station.website} target="_blank" rel="noreferrer">{station.website}</a></div>
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">

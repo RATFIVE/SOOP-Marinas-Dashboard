@@ -34,7 +34,7 @@ export default function KielHarbourPage() {
             <p className="mb-2 text-gray-700 dark:text-gray-300">Kiel Harbour is a safe harbour, well protected for westerly wind and southerly going currents</p>
             <div className="mb-1 text-sm"><span className="font-semibold">Mail:</span> harbour@kiel.de</div>
             <div className="mb-1 text-sm"><span className="font-semibold">Phone:</span> +00 000 000 000</div>
-            <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a href="https://www.kielharbour.de" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">www.kielharbour.de</a></div>
+            <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a href="https://www.kielharbour.de" className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">www.kielharbour.de</a></div>
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
