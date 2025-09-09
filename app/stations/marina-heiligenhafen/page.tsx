@@ -1,5 +1,5 @@
 "use client";
-import stationData from "@/app/stations/station.json";
+import stationData from "@/data/station.json";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
