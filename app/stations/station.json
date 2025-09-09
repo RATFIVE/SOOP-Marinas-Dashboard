@@ -1,0 +1,70 @@
+{
+	"stations": [
+		{
+			"name": "Badesteg Reventlou",
+			"info": "Badesteg Reventlou station (public bathing pier).",
+		"email": "badesteg@example.com",
+		"phone": "+49 4301 000000",
+		"website": "https://example.com/badesteg-reventlou",
+		"location": {
+				"type": "Point",
+				"coordinates": [54.32, 10.12]
+			}
+		},
+		{
+			"name": "Flensburg",
+		"info": "Flensburg harbour measurement station.",
+		"email": "flensburg@example.com",
+		"phone": "+49 461 000000",
+		"website": "https://example.com/flensburg",
+		"location": {
+				"type": "Point",
+				"coordinates": [54.7833, 9.4333]
+			}
+		},
+		{
+			"name": "Kappeln",
+		"info": "Kappeln measurement station on the Schlei.",
+		"email": "kappeln@example.com",
+		"phone": "+49 4642 000000",
+		"website": "https://example.com/kappeln",
+		"location": {
+				"type": "Point",
+				"coordinates": [54.7833, 9.9667]
+			}
+		},
+		{
+			"name": "Lübeck",
+		"info": "Lübeck harbour station.",
+		"email": "luebeck@example.com",
+		"phone": "+49 451 000000",
+		"website": "https://example.com/luebeck",
+		"location": {
+				"type": "Point",
+				"coordinates": [53.8689, 10.6873]
+			}
+		},
+		{
+			"name": "Schilksee",
+		"info": "Schilksee harbour station near Kiel.",
+		"email": "schilksee@example.com",
+		"phone": "+49 431 000000",
+		"website": "https://example.com/schilksee",
+		"location": {
+				"type": "Point",
+				"coordinates": [54.4197, 10.1694]
+			}
+		},
+		{
+			"name": "Marina Heiligenhafen",
+		"info": "Marina Heiligenhafen station.",
+		"email": "marina@example.com",
+		"phone": "+49 4382 000000",
+		"website": "https://example.com/marina-heiligenhafen",
+		"location": {
+				"type": "Point",
+				"coordinates": [54.3433, 11.0078]
+			}
+		}
+	]
+}
