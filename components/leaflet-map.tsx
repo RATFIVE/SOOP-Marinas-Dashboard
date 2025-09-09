@@ -1,5 +1,5 @@
 "use client";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import React from "react";
 import stationData from "@/data/station.json";
@@ -16,6 +16,24 @@ function slugify(name: string) {
     .replace(/^-|-$/g, '');
 }
 
+function FitBounds({ coordsList, meanCenter, bounds, zoom }: { coordsList: [number, number][]; meanCenter?: [number, number]; bounds?: L.LatLngBounds; zoom: number }) {
+  const map = useMap();
+  React.useEffect(() => {
+    if (!map) return;
+    try {
+      if (bounds) {
+        const neededZoom = map.getBoundsZoom(bounds, false);
+        map.setView(meanCenter as L.LatLngExpression, neededZoom);
+      } else if (coordsList.length === 1) {
+        map.setView(coordsList[0] as L.LatLngExpression, zoom);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [map, coordsList, meanCenter, bounds, zoom]);
+  return null;
+}
+
 export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 12, height = 450 }: { center?: [number, number]; zoom?: number; height?: number }) {
   const [ready, setReady] = React.useState(false);
   React.useEffect(() => {
@@ -26,9 +44,28 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 12, hei
     }
   }, []);
   if (typeof window === "undefined" || !ready) return <div style={{ width: "100%", height }} />;
+
+  // compute coords and mean center
+  const coordsList: [number, number][] = ((stationData as any).stations || [])
+    .map((s: any) => s.location?.coordinates)
+    .filter((c: any) => Array.isArray(c) && c.length >= 2)
+    .map((c: any) => [c[0], c[1]] as [number, number]);
+
+  let meanCenter: [number, number] | undefined = undefined;
+  if (coordsList.length > 0) {
+    const sum = coordsList.reduce((acc, cur) => [acc[0] + cur[0], acc[1] + cur[1]], [0, 0]);
+    meanCenter = [sum[0] / coordsList.length, sum[1] / coordsList.length];
+  }
+
+  // bounds to calculate needed zoom
+  let bounds: L.LatLngBounds | undefined = undefined;
+  if (coordsList.length > 1) bounds = L.latLngBounds(coordsList as L.LatLngExpression[]);
+
   return (
     <div style={{ width: "100%", height }}>
-      <MapContainer center={center} zoom={zoom} style={{ width: "100%", height: "100%", borderRadius: "0.5rem" }}>
+      <MapContainer center={meanCenter || center} zoom={zoom} style={{ width: "100%", height: "100%", borderRadius: "0.5rem" }}>
+        {/* FitBounds adjusts the map view after the map is ready */}
+        <FitBounds coordsList={coordsList} meanCenter={meanCenter} bounds={bounds} zoom={zoom} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
