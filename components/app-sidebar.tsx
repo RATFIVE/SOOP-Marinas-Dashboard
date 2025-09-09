@@ -46,6 +46,11 @@ const data = {
       icon: IconDashboard,
     },
     {
+      title: "Map",
+      url: "/map",
+      icon: IconChartBar,
+    },
+    {
       title: "Stations",
       url: "/stations",
       icon: IconDatabase,
