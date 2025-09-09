@@ -72,46 +72,75 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 12, hei
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {((stationData as any).stations || []).map((s: any, i: number) => {
-          const coords = s.location?.coordinates;
-          if (!coords || coords.length < 2) return null;
-          const lat = coords[0];
-          const lon = coords[1];
-          const slug = slugify(s.name);
-          // use a DivIcon with inline SVG to avoid loading external PNG assets from node_modules
-          const svg = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 24 24">
-              <path d="M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z" fill="var(--destructive)"/>
-              <circle cx="12" cy="9" r="3.5" fill="var(--primary-foreground)"/>
-            </svg>
-          `;
-          const icon = L.divIcon({
-            html: svg,
-            className: '',
-            iconSize: [40, 52],
-            iconAnchor: [20, 52],
-            popupAnchor: [0, -52],
-          });
+        {(() => {
+          // SafeMarker waits until the map's tooltip pane exists before rendering the Tooltip
+          function SafeMarker({ position, icon, slug, station }: { position: [number, number]; icon: L.DivIcon; slug: string; station: any }) {
+            const map = useMap();
+            const [paneReady, setPaneReady] = React.useState(false);
+            React.useEffect(() => {
+              if (!map) return;
+              try {
+                if (map.getPane && map.getPane('tooltipPane')) {
+                  setPaneReady(true);
+                  return;
+                }
+              } catch (e) {
+                // ignore
+              }
+              const id = window.setInterval(() => {
+                try {
+                  if (map.getPane && map.getPane('tooltipPane')) {
+                    setPaneReady(true);
+                    clearInterval(id);
+                  }
+                } catch (e) {}
+              }, 50);
+              return () => clearInterval(id);
+            }, [map]);
 
-          return (
-            <Marker
-              key={slug || i}
-              position={[lat, lon]}
-              icon={icon}
-              eventHandlers={{ click: () => router.push(`/stations/${slug}`) }}
-            >
-              <Tooltip direction="top" offset={[0, -52]} opacity={1}>
-                <div className="w-64">
-                  <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-3">
-                    <div className="font-bold">{s.name}</div>
-                    <div className="text-xs text-gray-500">{lat}, {lon}</div>
-                    <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{s.info}</p>
-                  </div>
-                </div>
-              </Tooltip>
-            </Marker>
-          );
-        })}
+            return (
+              <Marker position={position} icon={icon} eventHandlers={{ click: () => router.push(`/stations/${slug}`) }}>
+                {paneReady ? (
+                  <Tooltip direction="top" offset={[0, -52]} opacity={1}>
+                    <div className="w-64">
+                      <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-3">
+                        <div className="font-bold">{station.name}</div>
+                        <div className="text-xs text-gray-500">{position[0]}, {position[1]}</div>
+                        <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{station.info}</p>
+                      </div>
+                    </div>
+                  </Tooltip>
+                ) : null}
+              </Marker>
+            );
+          }
+
+          return ((stationData as any).stations || []).map((s: any, i: number) => {
+            const coords = s.location?.coordinates;
+            if (!coords || coords.length < 2) return null;
+            const lat = coords[0];
+            const lon = coords[1];
+            const slug = slugify(s.name);
+            // use a DivIcon with inline SVG to avoid loading external PNG assets from node_modules
+            const svg = `
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 24 24">
+                <path d="M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z" fill="var(--destructive)"/>
+                <circle cx="12" cy="9" r="3.5" fill="var(--primary-foreground)"/>
+              </svg>
+            `;
+            const icon = L.divIcon({
+              html: svg,
+              className: '',
+              iconSize: [40, 52],
+              iconAnchor: [20, 52],
+              popupAnchor: [0, -52],
+            });
+
+            return (
+              <SafeMarker key={slug || i} position={[lat, lon]} icon={icon} slug={slug} station={s} />
+            );
+          });
+        })()}
       </MapContainer>
     </div>
   );
