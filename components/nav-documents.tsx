@@ -43,8 +43,8 @@ export function NavDocuments({
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
-                <item.icon />
+              <a href={item.url} className="text-[var(--primary)] hover:underline flex items-center gap-2">
+                <item.icon className="text-[var(--primary)]/80" />
                 <span>{item.name}</span>
               </a>
             </SidebarMenuButton>

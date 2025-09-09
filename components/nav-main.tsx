@@ -28,8 +28,8 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url}>
-                  {item.icon && <item.icon />}
+                <a href={item.url} className="text-[var(--primary)] hover:underline flex items-center gap-2">
+                  {item.icon && <item.icon className="text-[var(--primary)]/80" />}
                   <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>

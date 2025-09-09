@@ -40,19 +40,19 @@ export default function KielHarbourPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
               <h3 className="text-lg font-semibold mb-2">Windgeschwindigkeit</h3>
-              <p className="text-2xl font-bold">12,3 m/s</p>
+              <p className="text-2xl font-bold text-[var(--primary)]">12,3 m/s</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
               <h3 className="text-lg font-semibold mb-2">Wassertemperatur</h3>
-              <p className="text-2xl font-bold">17,8 °C</p>
+              <p className="text-2xl font-bold text-[var(--primary)]">17,8 °C</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
               <h3 className="text-lg font-semibold mb-2">Wasserstand</h3>
-              <p className="text-2xl font-bold">+0,42 m</p>
+              <p className="text-2xl font-bold text-[var(--primary)]">+0,42 m</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
               <h3 className="text-lg font-semibold mb-2">Salinität</h3>
-              <p className="text-2xl font-bold">14,2 PSU</p>
+              <p className="text-2xl font-bold text-[var(--primary)]">14,2 PSU</p>
             </div>
           </div>
           {/* Area Chart Kachel */}
@@ -90,7 +90,7 @@ export default function KielHarbourPage() {
                   <XAxis dataKey="time" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  <Area type="monotone" dataKey={selectedMetric} stroke="#2563eb" fill="#60a5fa" fillOpacity={0.3} />
+                  <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

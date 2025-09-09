@@ -46,25 +46,25 @@ export default function FlensburgPage() {
             <p className="mb-2 text-gray-700 dark:text-gray-300">{station.info}</p>
             <div className="mb-1 text-sm"><span className="font-semibold">Mail:</span> {station.email}</div>
             <div className="mb-1 text-sm"><span className="font-semibold">Phone:</span> {station.phone}</div>
-            <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a className="text-accent" href={station.website} target="_blank" rel="noreferrer">{station.website}</a></div>
+            <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a className="text-[var(--primary)]" href={station.website} target="_blank" rel="noreferrer">{station.website}</a></div>
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
               <h3 className="text-lg font-semibold mb-2">Windgeschwindigkeit</h3>
-              <p className="text-2xl font-bold">{(8 + Math.random()*6).toFixed(1)} m/s</p>
+              <p className="text-2xl font-bold text-[var(--primary)]">{(8 + Math.random()*6).toFixed(1)} m/s</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
               <h3 className="text-lg font-semibold mb-2">Wassertemperatur</h3>
-              <p className="text-2xl font-bold">{(14 + Math.random()*4).toFixed(1)} °C</p>
+              <p className="text-2xl font-bold text-[var(--primary)]">{(14 + Math.random()*4).toFixed(1)} °C</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
               <h3 className="text-lg font-semibold mb-2">Wasserstand</h3>
-              <p className="text-2xl font-bold">{(0.2 + Math.random()*0.4).toFixed(2)} m</p>
+              <p className="text-2xl font-bold text-[var(--primary)]">{(0.2 + Math.random()*0.4).toFixed(2)} m</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
               <h3 className="text-lg font-semibold mb-2">Salinität</h3>
-              <p className="text-2xl font-bold">{(13 + Math.random()*2).toFixed(1)} PSU</p>
+              <p className="text-2xl font-bold text-[var(--primary)]">{(13 + Math.random()*2).toFixed(1)} PSU</p>
             </div>
           </div>
           {/* Area Chart Kachel */}
@@ -102,7 +102,7 @@ export default function FlensburgPage() {
                   <XAxis dataKey="time" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  <Area type="monotone" dataKey={selectedMetric} stroke="#2563eb" fill="#60a5fa" fillOpacity={0.3} />
+                  <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

@@ -16,7 +16,7 @@ export function SiteHeader() {
     const stationName = pathname.split("/")[2].replace(/\b\w/g, c => c.toUpperCase()).replace(/-/g, " ");
     breadcrumb = (
       <nav className="flex items-center gap-1 text-base font-medium">
-  <a href="/stations" className="text-accent hover:underline">Stations</a>
+  <a href="/stations" className="text-[var(--primary)] hover:underline">Stations</a>
         <span className="mx-1">/</span>
         <span>{stationName}</span>
       </nav>
