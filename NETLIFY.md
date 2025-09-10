@@ -18,4 +18,4 @@ Notes:
 - If you prefer a static export, revert `next.config.ts` and use `pnpm run export` instead.
 
 BasePath note:
-- `next.config.ts` sets `basePath` to `/dashboard` when `NODE_ENV=production`. If you want the site served at root `/`, remove or adjust `basePath` before deploying.
+- `next.config.ts` sets `basePath` to `/soop-marinas-dashboard` when `NODE_ENV=production`. If you want the site served at root `/`, remove or adjust `basePath` before deploying.

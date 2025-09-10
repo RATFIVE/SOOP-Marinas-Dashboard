@@ -13,7 +13,7 @@ const ignoreDuringBuilds = eslintIgnoreEnv
 const isStaticExport = process.env.NEXT_STATIC_EXPORT === 'true';
 
 const nextConfig: any = {
-  basePath: isProd ? '/dashboard' : '',
+  basePath: isProd ? '/soop-marinas-dashboard' : '',
   images: { unoptimized: true },
   eslint: {
     ignoreDuringBuilds: ignoreDuringBuilds,
