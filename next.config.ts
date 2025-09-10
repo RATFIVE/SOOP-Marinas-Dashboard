@@ -12,7 +12,7 @@ const ignoreDuringBuilds = eslintIgnoreEnv
 // Allow a temporary static export mode when NEXT_STATIC_EXPORT=true is set.
 const isStaticExport = process.env.NEXT_STATIC_EXPORT === 'true';
 
-const nextConfig: any = {
+const nextConfig = {
   basePath: isProd ? '/soop-marinas-dashboard' : '',
   images: { unoptimized: true },
   eslint: {
@@ -22,7 +22,7 @@ const nextConfig: any = {
 
 if (isStaticExport) {
   // Next.js expects `output: 'export'` for static export mode in newer versions.
-  nextConfig.output = 'export';
+  (nextConfig as unknown as Record<string, unknown>).output = 'export';
 }
 
 module.exports = nextConfig;

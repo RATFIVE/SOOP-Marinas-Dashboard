@@ -1,9 +1,12 @@
 "use client";
-import stationData from "@/data/station.json";
+import stations from '@/lib/station';
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useState, useRef, useEffect } from "react";
+import { getSidebarStyle } from '@/lib/ui';
+import useThingObservations, { useThingSeries } from '@/lib/useFrost';
+import { Skeleton } from '@/components/ui/skeleton';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import StationMapCard from '@/components/station-map-card';
 
@@ -19,28 +22,76 @@ function slugify(name: string) {
 }
 
 export default function LuebeckPage() {
-  const chartData = Array.from({ length: 24 }, (_, i) => ({
-    time: `${i}:00`,
-    wind: 8 + Math.random() * 6,
-    temp: 14 + Math.random() * 4,
-    level: 0.2 + Math.random() * 0.4,
-    salinity: 13 + Math.random() * 2,
-  }));
-    const [selectedMetric, setSelectedMetric] = useState("wind");
-    const [selectedRange, setSelectedRange] = useState("24h");
-    const station = (stationData as any).stations.find((s: any) => {
+  const stationRaw = stations.find((s) => {
       const sl = slugify(s.name);
       return sl === 'lübeck' || sl === 'luebeck' || sl === 'marina-luebeck-the-newport' || s.name === 'Marina Lübeck "The Newport"';
-    }) || (stationData as any).stations[0];
-    const infoRef = useRef<HTMLDivElement | null>(null);
-    const [infoHeight, setInfoHeight] = useState<number | null>(null);
-    useEffect(() => {
-      const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); };
-      update(); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update);
-    }, []);
+    }) || stations[0];
+  const station = stationRaw;
+  const twlId = stationRaw['twlbox-id'] || '';
+  const metId = stationRaw['metbox-id'] || '';
+  const { loading: twlLoading, error: twlError, observations: twlObs } = useThingObservations(twlId || null);
+  const { loading: metLoading, error: metError, observations: metObs } = useThingObservations(metId || null);
+
+  type Obs = { result?: number | string; phenomenonTime?: string } | null;
+  const getLatestValue = (obsMap: Record<string, Obs> | null | undefined, preferKeywords: string[]) => {
+    if (!obsMap) return null;
+    for (const k of Object.keys(obsMap)) {
+      const low = k.toLowerCase();
+      if (preferKeywords.some(pk => low.includes(pk))) {
+        const o = obsMap[k];
+        if (o && o.result != null) return { value: o.result, time: o.phenomenonTime || o['phenomenonTime'] };
+      }
+    }
+    for (const k of Object.keys(obsMap)) {
+      const o = obsMap[k]; if (o && o.result != null) return { value: o.result, time: o.phenomenonTime || o['phenomenonTime'] };
+    }
+    return null;
+  };
+
+  const adaptObsMap = (m: Record<string, unknown> | null | undefined): Record<string, Obs> | null => {
+    if (!m) return null;
+    const out: Record<string, Obs> = {};
+    for (const k of Object.keys(m)) {
+      const raw = m[k];
+      if (!raw || typeof raw !== 'object') { out[k] = null; continue; }
+      const o = raw as Record<string, unknown>;
+      const res = o['result'];
+      out[k] = { result: typeof res === 'number' || typeof res === 'string' ? res : undefined, phenomenonTime: (o['phenomenonTime'] as string | undefined) };
+    }
+    return out;
+  };
+
+  const windVal = metId ? getLatestValue(adaptObsMap(metObs), ['wind', 'wind speed', 'windspeed']) : null;
+  const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'water temperature', 'watertemperature', 'waterTemp', 'temp']) : null;
+  const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'water level', 'waterlevel', 'height']) : null;
+  const salVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['salin', 'salinity']) : null;
+  const [selectedMetric, setSelectedMetric] = useState("wind");
+  const [selectedRange, setSelectedRange] = useState("24h");
+  const infoRef = useRef<HTMLDivElement | null>(null);
+  // fetch series based on selected range
+  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
+  const hours = rangeToHours[selectedRange] || 24;
+  const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp', 'temperature', 'level', 'salin', 'salinity'], hours);
+  const { loading: metSeriesLoading, error: metSeriesError, series: metSeries } = useThingSeries(metId || null, ['wind', 'wind speed', 'windspeed'], hours);
+
+  let chartData: Array<Record<string, string | number>> = [];
+  if (selectedMetric === 'wind') {
+    chartData = (metSeries && metSeries.length > 0) ? metSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), wind: s.value })) : [];
+  } else if (selectedMetric === 'temp') {
+    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
+  } else if (selectedMetric === 'level') {
+    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), level: s.value })) : [];
+  } else if (selectedMetric === 'salinity') {
+    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), salinity: s.value })) : [];
+  }
+  const [infoHeight, setInfoHeight] = useState<number | null>(null);
+  useEffect(() => {
+    const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); };
+    update(); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update);
+  }, []);
 
   return (
-    <SidebarProvider style={( { "--sidebar-width": "calc(var(--spacing) * 72)", "--header-height": "calc(var(--spacing) * 12)" } as any)}>
+    <SidebarProvider style={getSidebarStyle()}>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
@@ -64,22 +115,30 @@ export default function LuebeckPage() {
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
+            {metId && (
+              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-2">Wind speed</h3>
-              <p className="text-2xl font-bold text-[var(--primary)]">{(8 + Math.random()*6).toFixed(1)} m/s</p>
-            </div>
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
+                <p className="text-2xl font-bold text-[var(--primary)]">{windVal ? `${Number(windVal.value).toFixed(1)} m/s` : (metLoading ? 'Loading…' : 'n/a')}</p>
+              </div>
+            )}
+            {twlId && (
+              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-2">Water temperature</h3>
-              <p className="text-2xl font-bold text-[var(--primary)]">{(14 + Math.random()*4).toFixed(1)} °C</p>
-            </div>
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
+                <p className="text-2xl font-bold text-[var(--primary)]">{tempVal ? `${Number(tempVal.value).toFixed(1)} °C` : (twlLoading ? 'Loading…' : 'n/a')}</p>
+              </div>
+            )}
+            {twlId && (
+              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-2">Water level</h3>
-              <p className="text-2xl font-bold text-[var(--primary)]">{(0.2 + Math.random()*0.4).toFixed(2)} m</p>
-            </div>
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
+                <p className="text-2xl font-bold text-[var(--primary)]">{levelVal ? `${Number(levelVal.value).toFixed(2)} m` : (twlLoading ? 'Loading…' : 'n/a')}</p>
+              </div>
+            )}
+            {twlId && (
+              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-2">Salinity</h3>
-              <p className="text-2xl font-bold text-[var(--primary)]">{(13 + Math.random()*2).toFixed(1)} PSU</p>
-            </div>
+                <p className="text-2xl font-bold text-[var(--primary)]">{salVal ? `${Number(salVal.value).toFixed(1)} PSU` : (twlLoading ? 'Loading…' : 'n/a')}</p>
+              </div>
+            )}
           </div>
           {/* Area Chart Kachel */}
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
@@ -111,14 +170,32 @@ export default function LuebeckPage() {
               </div>
             </div>
             <div className="w-full h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="time" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
-                </AreaChart>
-              </ResponsiveContainer>
+              { (twlSeriesLoading || metSeriesLoading) ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Skeleton className="w-full h-48" />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => {
+                      if (selectedMetric === 'temp') return `${Number(v).toFixed(1)} °C`;
+                      if (selectedMetric === 'level') return `${Number(v).toFixed(2)} m`;
+                      if (selectedMetric === 'wind') return `${Number(v).toFixed(1)} m/s`;
+                      if (selectedMetric === 'salinity') return `${Number(v).toFixed(1)} PSU`;
+                      return v;
+                    }} />
+                    <Tooltip formatter={(value: number | string) => {
+                      if (selectedMetric === 'temp') return [`${Number(value).toFixed(1)} °C`, 'Temperature'];
+                      if (selectedMetric === 'level') return [`${Number(value).toFixed(2)} m`, 'Level'];
+                      if (selectedMetric === 'wind') return [`${Number(value).toFixed(1)} m/s`, 'Wind'];
+                      if (selectedMetric === 'salinity') return [`${Number(value).toFixed(1)} PSU`, 'Salinity'];
+                      return [value, ''];
+                    }} labelFormatter={(l) => l} />
+                    <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
         </div>

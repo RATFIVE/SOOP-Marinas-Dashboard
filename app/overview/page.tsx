@@ -36,7 +36,7 @@ const MapboxMap = dynamic(() => import("@/components/mapbox-map"), { ssr: false 
 
 export default function OverviewPage() {
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
-  const [nearest, setNearest] = useState<any | null>(null);
+  const [nearest, setNearest] = useState<null | { station: RawStation; dist: number | null }>(null);
 
   useEffect(() => {
     // try to get geolocation (user must allow)
@@ -70,11 +70,11 @@ export default function OverviewPage() {
         try { console.debug('distance to', s.name, coords, dist); } catch (e) {}
         if (dist < bestDist) { bestDist = dist; best = { station: s, dist }; }
       }
-      try { console.debug('userPos', userPos, 'best', best?.station?.name, 'bestDist', bestDist); } catch (e) {}
-      setNearest(best);
+  try { console.debug('userPos', userPos, 'best', best?.station?.name, 'bestDist', bestDist); } catch (e) {}
+  setNearest(best as { station: RawStation; dist: number } | null);
     } else {
       // fallback: pick first station
-      if (stations.length > 0) setNearest({ station: stations[0], dist: null });
+  if (stations.length > 0) setNearest({ station: stations[0], dist: null });
     }
   }, [userPos]);
   return (
