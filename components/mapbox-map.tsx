@@ -145,6 +145,7 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
                       { label: 'Salinity', value: '—' },
                     ]}
                     lastUpdateISO={new Date().toISOString()}
+                    compact={true}
                     onMoreDetails={() => { try { router.push(`/stations/${slugify(s.name || '')}`); } catch (e) {} }}
                   />
                 );
@@ -246,6 +247,7 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
                       online={true}
                       metrics={[{ label: 'Average wind', value: '—' },{ label: 'Temperature', value: '—' },{ label: 'Water level', value: '—' },{ label: 'Salinity', value: '—' }]}
                       lastUpdateISO={new Date().toISOString()}
+                      compact={true}
                       onMoreDetails={() => { try { router.push(`/stations/${slugify(s.name || '')}`); } catch (e) {} }}
                     />
                   );

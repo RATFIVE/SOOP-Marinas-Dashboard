@@ -17,6 +17,7 @@ export type StationCardProps = {
   metrics: Metric[];
   lastUpdateISO: string;
   onMoreDetails?: () => void;
+  compact?: boolean; // when true, render inline/auto width (for map popups)
 };
 
 function formatLastUpdate(iso: string) {
@@ -35,9 +36,13 @@ function formatLastUpdate(iso: string) {
   }
 }
 
-export default function StationCard({ name, lat, lon, online, metrics, lastUpdateISO, onMoreDetails }: StationCardProps) {
+export default function StationCard({ name, lat, lon, online, metrics, lastUpdateISO, onMoreDetails, compact = false }: StationCardProps) {
+  const baseClasses = compact
+    ? 'inline-block w-auto rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-3 sm:p-4'
+    : 'w-full rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 sm:p-5';
+
   return (
-    <Card className="rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 sm:p-5">
+    <Card className={baseClasses}>
       <CardHeader className="p-0">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -97,7 +102,7 @@ export default function StationCard({ name, lat, lon, online, metrics, lastUpdat
             <span>Last update:&nbsp;</span>
             <time dateTime={lastUpdateISO} className="font-medium text-sm">{formatLastUpdate(lastUpdateISO)}</time>
           </div>
-          <div className="w-36 text-right hidden sm:block text-sm text-muted-foreground">&nbsp;</div>
+          <div className="text-right hidden sm:block text-sm text-muted-foreground" aria-hidden> </div>
         </div>
       </CardFooter>
 

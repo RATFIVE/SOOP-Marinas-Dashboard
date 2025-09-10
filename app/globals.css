@@ -227,6 +227,62 @@ body {
   border-radius: 0 !important;
 }
 
+/* Mapbox React popup container styling: placed at the end so it can override global resets */
+/* Make the outer Mapbox popup wrapper transparent so the inner
+   React-rendered StationCard's own background, border-radius and shadow
+   are fully visible without additional wrapper clipping or padding. */
+.mapboxgl-popup-content {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.mapboxgl-popup-content > .mapbox-popup-react-container {
+  display: inline-block; /* allow popup to size to its content */
+  max-width: 360px;
+  width: auto;
+  background: transparent; /* keep wrapper transparent; card inside defines its own background */
+  color: var(--card-foreground);
+  /* remove wrapper shadow and let the Card component render its own shadow */
+  box-shadow: none;
+  /* do not clip rounded corners of the inner card */
+  overflow: visible;
+  padding: 0; /* no extra padding around the card */
+  box-sizing: border-box;
+  white-space: normal;
+  vertical-align: top;
+}
+
+/* Let the inner React-rendered content determine its own width so the
+   popup can shrink or grow with the card. Do NOT force 100% width. */
+.mapbox-popup-react-container > * {
+  width: auto !important;
+  box-sizing: border-box;
+}
+
+/* Hide the default mapbox arrow for a cleaner card look */
+.mapboxgl-popup .mapboxgl-popup-tip {
+  display: none;
+}
+
+/* Mobile behavior: make popup nearly full width and anchored nicely */
+@media (max-width: 640px) {
+  .mapboxgl-popup-content > .mapbox-popup-react-container {
+    display: block; /* full-width on small screens */
+    width: calc(100vw - 32px) !important;
+    max-width: none;
+    margin: 0 16px;
+    /* wrapper transparent; Card provides visual styles */
+    box-shadow: none;
+    padding: 0;
+  }
+  /* nudge the popup to not overflow horizontally */
+  .mapboxgl-popup {
+    left: 16px !important;
+    right: 16px !important;
+  }
+}
+
 .theme-mono,
 .theme-mono-scaled {
   --font-sans: var(--font-mono);
