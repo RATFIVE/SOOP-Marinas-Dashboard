@@ -80,7 +80,7 @@ export default function OverviewPage() {
   return (
     <SidebarProvider
       style={
-  // @ts-expect-error
+  // @ts-expect-error - passing CSS custom properties via style prop
         {"--sidebar-width": "calc(var(--spacing) * 72)", "--header-height": "calc(var(--spacing) * 12)"}
       }
     >

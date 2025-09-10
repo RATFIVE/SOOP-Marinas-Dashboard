@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import StationMapCard from '@/components/station-map-card';
 
 export default function KielHarbourPage() {
   // Beispiel-Daten für das Chart
@@ -17,24 +18,29 @@ export default function KielHarbourPage() {
   const [selectedMetric, setSelectedMetric] = useState("wind");
   const [selectedRange, setSelectedRange] = useState("24h");
 
+  const sidebarStyle: React.CSSProperties & Record<string, string> = {
+    "--sidebar-width": "calc(var(--spacing) * 72)",
+    "--header-height": "calc(var(--spacing) * 12)",
+  } as unknown as React.CSSProperties & Record<string, string>;
+
   return (
-    <SidebarProvider style={{
-      // @ts-ignore
-      "--sidebar-width": "calc(var(--spacing) * 72)",
-      // @ts-ignore
-      "--header-height": "calc(var(--spacing) * 12)"
-    }}>
+    <SidebarProvider style={sidebarStyle}>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
   <div className="flex flex-1 flex-col items-center p-8 gap-6">
           <h2 className="text-xl font-bold mb-2 w-full">Info</h2>
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full">
-            <h3 className="text-lg font-bold mb-2">Kiel Harbour</h3>
-            <p className="mb-2 text-gray-700 dark:text-gray-300">Kiel Harbour is a safe harbour, well protected for westerly wind and southerly going currents</p>
-            <div className="mb-1 text-sm"><span className="font-semibold">Mail:</span> harbour@kiel.de</div>
-            <div className="mb-1 text-sm"><span className="font-semibold">Phone:</span> +00 000 000 000</div>
-            <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a href="https://www.kielharbour.de" className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">www.kielharbour.de</a></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
+              <h3 className="text-lg font-bold mb-2">Kiel Harbour</h3>
+              <p className="mb-2 text-gray-700 dark:text-gray-300">Kiel Harbour is a safe harbour, well protected for westerly wind and southerly going currents</p>
+              <div className="mb-1 text-sm"><span className="font-semibold">Mail:</span> harbour@kiel.de</div>
+              <div className="mb-1 text-sm"><span className="font-semibold">Phone:</span> +00 000 000 000</div>
+              <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a href="https://www.kielharbour.de" className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">www.kielharbour.de</a></div>
+            </div>
+            <div className="hidden md:block">
+              <StationMapCard lat={54.3233} lon={10.1228} zoom={13} height={224} />
+            </div>
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">

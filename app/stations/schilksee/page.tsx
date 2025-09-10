@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import StationMapCard from '@/components/station-map-card';
 
 function slugify(name: string) {
   return name
@@ -27,26 +28,32 @@ export default function SchilkseePage() {
   }));
   const [selectedMetric, setSelectedMetric] = useState("wind");
   const [selectedRange, setSelectedRange] = useState("24h");
-  const station = (stationData as any).stations.find((s: any) => slugify(s.name) === 'schilksee') || (stationData as any).stations[0];
-
+  type RawStation = { name?: string; location?: { coordinates?: number[] }; email?: string; phone?: string; website?: string; info?: string };
+  const stations = (stationData as unknown as { stations?: RawStation[] }).stations || [];
+  const station = stations.find((s) => slugify(s.name || '') === 'schilksee') || stations[0];
   return (
-    <SidebarProvider style={{
-  // @ts-expect-error
-      "--sidebar-width": "calc(var(--spacing) * 72)",
-  // @ts-expect-error
-      "--header-height": "calc(var(--spacing) * 12)"
-    }}>
+    <SidebarProvider style={( { // @ts-expect-error - passing CSS custom properties via style prop
+      "--sidebar-width": "calc(var(--spacing) * 72)", "--header-height": "calc(var(--spacing) * 12)" } as any)}>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col items-center p-8 gap-6">
           <h2 className="text-xl font-bold mb-2 w-full text-[var(--primary)]">Info</h2>
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full">
-            <h3 className="text-lg font-bold mb-2 text-[var(--primary)]">{station.name}</h3>
-            <p className="mb-2 text-gray-700 dark:text-gray-300">{station.info}</p>
-            <div className="mb-1 text-sm"><span className="font-semibold">Mail:</span> {station.email}</div>
-            <div className="mb-1 text-sm"><span className="font-semibold">Phone:</span> {station.phone}</div>
-            <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a className="text-[var(--primary)]" href={station.website} target="_blank" rel="noreferrer">{station.website}</a></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
+              <h3 className="text-lg font-bold mb-2 text-[var(--primary)]">{station.name}</h3>
+              <p className="mb-2 text-gray-700 dark:text-gray-300">{station.info}</p>
+              <div className="mb-1 text-sm"><span className="font-semibold">Mail:</span> {station.email}</div>
+              <div className="mb-1 text-sm"><span className="font-semibold">Phone:</span> {station.phone}</div>
+              <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a className="text-[var(--primary)]" href={station.website} target="_blank" rel="noreferrer">{station.website}</a></div>
+            </div>
+            <div className="hidden md:block">
+              {station && station.location && Array.isArray(station.location.coordinates) ? (
+                <StationMapCard lat={station.location.coordinates[0]} lon={station.location.coordinates[1]} zoom={13} height={224} />
+              ) : (
+                <StationMapCard lat={54.5} lon={10.2} zoom={12} height={224} />
+              )}
+            </div>
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
