@@ -4,6 +4,15 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import stationData from "@/data/station.json";
+type RawStation = {
+  name: string;
+  location?: { coordinates?: number[] };
+  email?: string;
+  phone?: string;
+  website?: string;
+  info?: string;
+};
+import StationCard from "@/components/station-card";
 
 function slugify(name: string) {
   return name
@@ -26,7 +35,8 @@ interface Station {
   salinity: string;
 }
 
-const stations: Station[] = ((stationData as any).stations || []).map((s: any) => ({
+const rawStations = ((stationData as unknown as { stations?: RawStation[] }).stations || []);
+const stations: Station[] = rawStations.map((s) => ({
   name: s.name,
   slug: slugify(s.name),
   position: Array.isArray(s.location?.coordinates) ? `${s.location.coordinates[0]}, ${s.location.coordinates[1]}` : "",
@@ -55,36 +65,26 @@ export default function StationsPage() {
               <div className="px-4 lg:px-6">
                 <h1 className="text-2xl font-bold mb-6 text-[var(--primary)]">Stations</h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {stations.map((station, i) => (
-                    <div key={i} className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 flex flex-col h-full">
-                      <h2 className="text-lg font-semibold mb-4">{station.name}</h2>
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">{station.position}</div>
-                        <div className="grid grid-cols-2 gap-4 mt-2">
-                          <div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Average Wind</div>
-                            <div className="font-semibold">{station.wind}</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Temperature</div>
-                            <div className="font-semibold">{station.temp}</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Water Level</div>
-                            <div className="font-semibold">{station.water}</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Salinity</div>
-                            <div className="font-semibold">{station.salinity}</div>
-                          </div>
-                        </div>
-                        <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
-                        <div className="flex justify-center">
-                          <a href={`/stations/${station.slug}`} className="bg-primary text-primary-foreground hover:opacity-90 font-semibold py-2 px-4 rounded shadow transition-colors">More Details</a>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                  {stations.map((station, i) => {
+                    const coords = station.position.split(",").map(s => parseFloat(s.trim()));
+                    return (
+                      <StationCard
+                        key={i}
+                        name={station.name}
+                        lat={Number.isFinite(coords[0]) ? coords[0] : 0}
+                        lon={Number.isFinite(coords[1]) ? coords[1] : 0}
+                        online={true}
+                        metrics={[
+                          { label: "Average wind", value: station.wind },
+                          { label: "Temperature", value: station.temp },
+                          { label: "Water level", value: station.water },
+                          { label: "Salinity", value: station.salinity },
+                        ]}
+                        lastUpdateISO={new Date().toISOString()}
+                        onMoreDetails={() => { window.location.href = `/stations/${station.slug}` }}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>

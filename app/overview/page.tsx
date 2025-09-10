@@ -7,6 +7,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import dynamic from "next/dynamic";
 import stationData from '@/data/station.json';
+type RawStation = { name: string; location?: { coordinates?: number[] } };
+import StationCard from "@/components/station-card";
 import { useEffect, useState } from 'react';
 
 function toRad(v: number) { return v * Math.PI / 180; }
@@ -56,7 +58,7 @@ export default function OverviewPage() {
   }, []);
 
   useEffect(() => {
-    const stations = (stationData as any).stations || [];
+    const stations = (stationData as unknown as { stations?: RawStation[] }).stations || [];
     if (userPos) {
       let best = null;
       let bestDist = Infinity;
@@ -78,7 +80,7 @@ export default function OverviewPage() {
   return (
     <SidebarProvider
       style={
-        // @ts-ignore
+  // @ts-expect-error
         {"--sidebar-width": "calc(var(--spacing) * 72)", "--header-height": "calc(var(--spacing) * 12)"}
       }
     >
@@ -103,32 +105,20 @@ export default function OverviewPage() {
                         const s = nearest.station;
                         const coords = s.location?.coordinates || [];
                         return (
-                          <>
-                            <div className="font-bold text-base mb-1">{s.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">{coords[0]}, {coords[1]}</div>
-                            <div className="grid grid-cols-2 gap-4 mt-2">
-                              <div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">Average Wind</div>
-                                <div className="font-semibold">—</div>
-                              </div>
-                              <div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">Temperature</div>
-                                <div className="font-semibold">—</div>
-                              </div>
-                              <div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">Water Level</div>
-                                <div className="font-semibold">—</div>
-                              </div>
-                              <div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">Salinity</div>
-                                <div className="font-semibold">—</div>
-                              </div>
-                            </div>
-                            <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
-                            <div className="flex justify-center">
-                              <a href={`/stations/${slugify(s.name || '')}`} className="bg-primary text-primary-foreground hover:opacity-90 font-semibold py-2 px-4 rounded shadow transition-colors">More Details</a>
-                            </div>
-                          </>
+                          <StationCard
+                            name={s.name}
+                            lat={coords[0] ?? 0}
+                            lon={coords[1] ?? 0}
+                            online={true}
+                            metrics={[
+                              { label: 'Average wind', value: '—' },
+                              { label: 'Temperature', value: '—' },
+                              { label: 'Water level', value: '—' },
+                              { label: 'Salinity', value: '—' },
+                            ]}
+                            lastUpdateISO={new Date().toISOString()}
+                            onMoreDetails={() => { window.location.href = `/stations/${slugify(s.name || '')}` }}
+                          />
                         );
                       })()
                     ) : (

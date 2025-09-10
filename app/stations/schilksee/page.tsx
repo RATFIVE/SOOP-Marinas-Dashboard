@@ -31,9 +31,9 @@ export default function SchilkseePage() {
 
   return (
     <SidebarProvider style={{
-      // @ts-ignore
+  // @ts-expect-error
       "--sidebar-width": "calc(var(--spacing) * 72)",
-      // @ts-ignore
+  // @ts-expect-error
       "--header-height": "calc(var(--spacing) * 12)"
     }}>
       <AppSidebar variant="inset" />
