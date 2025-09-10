@@ -5,6 +5,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { useRouter } from 'next/navigation';
 import stationData from '@/data/station.json';
 import { useTheme } from 'next-themes';
+import { createRoot } from 'react-dom/client';
+import StationCard from '@/components/station-card';
 
 function slugify(name: string) {
   return name
@@ -30,6 +32,8 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
   const { theme, resolvedTheme } = useTheme();
   const hoverPopupRef = useRef<mapboxgl.Popup | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const hoverRootRef = useRef<ReturnType<typeof createRoot> | null>(null);
+  const hoverContainerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -115,13 +119,45 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
 
             el.addEventListener('mouseenter', () => {
               try {
-                const popupHtml = `<div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-3 max-w-xs"><div class="font-bold">${s.name || ''}</div><div class="text-xs text-gray-500">${lat.toFixed(4)}, ${lng.toFixed(4)}</div><p class="mt-2 text-sm text-gray-700 dark:text-gray-300">${s.info || ''}</p></div>`;
+                // create container for React root
+                if (hoverRootRef.current) {
+                  try { hoverRootRef.current.unmount(); } catch (e) {}
+                  hoverRootRef.current = null;
+                }
+                if (hoverContainerRef.current) {
+                  try { hoverContainerRef.current.remove(); } catch (e) {}
+                  hoverContainerRef.current = null;
+                }
+                const container = document.createElement('div');
+                container.className = 'mapbox-popup-react-container';
+                hoverContainerRef.current = container;
+                hoverRootRef.current = createRoot(container);
+                hoverRootRef.current.render(
+                  <StationCard
+                    name={s.name || ''}
+                    lat={lat}
+                    lon={lng}
+                    online={true}
+                    metrics={[
+                      { label: 'Average wind', value: '—' },
+                      { label: 'Temperature', value: '—' },
+                      { label: 'Water level', value: '—' },
+                      { label: 'Salinity', value: '—' },
+                    ]}
+                    lastUpdateISO={new Date().toISOString()}
+                    onMoreDetails={() => { try { router.push(`/stations/${slugify(s.name || '')}`); } catch (e) {} }}
+                  />
+                );
                 if (!hoverPopupRef.current) hoverPopupRef.current = new mapboxgl.Popup({ offset: 8, closeButton: false, closeOnClick: false });
-                hoverPopupRef.current.setLngLat([lng, lat]).setHTML(popupHtml).addTo(targetMap);
+                hoverPopupRef.current.setLngLat([lng, lat]).setDOMContent(container).addTo(targetMap);
               } catch (e) {}
             });
             el.addEventListener('mouseleave', () => {
-              try { if (hoverPopupRef.current) { hoverPopupRef.current.remove(); hoverPopupRef.current = null; } } catch (e) {}
+              try {
+                if (hoverPopupRef.current) { hoverPopupRef.current.remove(); hoverPopupRef.current = null; }
+                if (hoverRootRef.current) { try { hoverRootRef.current.unmount(); } catch (e) {} hoverRootRef.current = null; }
+                if (hoverContainerRef.current) { try { hoverContainerRef.current.remove(); } catch (e) {} hoverContainerRef.current = null; }
+              } catch (e) {}
             });
             el.addEventListener('click', () => {
               try {
@@ -193,6 +229,37 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
               el.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='32' height='32'><path style="fill:#78D278" d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle style="fill:#ffffff" cx='12' cy='9' r='3.5'/></svg>`;
               const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).addTo(m);
               markersRef.current.push(marker);
+              // attach hover popup using React root
+              el.addEventListener('mouseenter', () => {
+                try {
+                  if (hoverRootRef.current) { try { hoverRootRef.current.unmount(); } catch (e) {} hoverRootRef.current = null; }
+                  if (hoverContainerRef.current) { try { hoverContainerRef.current.remove(); } catch (e) {} hoverContainerRef.current = null; }
+                  const container = document.createElement('div');
+                  container.className = 'mapbox-popup-react-container';
+                  hoverContainerRef.current = container;
+                  hoverRootRef.current = createRoot(container);
+                  hoverRootRef.current.render(
+                    <StationCard
+                      name={s.name || ''}
+                      lat={lat}
+                      lon={lng}
+                      online={true}
+                      metrics={[{ label: 'Average wind', value: '—' },{ label: 'Temperature', value: '—' },{ label: 'Water level', value: '—' },{ label: 'Salinity', value: '—' }]}
+                      lastUpdateISO={new Date().toISOString()}
+                      onMoreDetails={() => { try { router.push(`/stations/${slugify(s.name || '')}`); } catch (e) {} }}
+                    />
+                  );
+                  if (!hoverPopupRef.current) hoverPopupRef.current = new mapboxgl.Popup({ offset: 8, closeButton: false, closeOnClick: false });
+                  hoverPopupRef.current.setLngLat([lng, lat]).setDOMContent(container).addTo(m);
+                } catch (e) {}
+              });
+              el.addEventListener('mouseleave', () => {
+                try {
+                  if (hoverPopupRef.current) { hoverPopupRef.current.remove(); hoverPopupRef.current = null; }
+                  if (hoverRootRef.current) { try { hoverRootRef.current.unmount(); } catch (e) {} hoverRootRef.current = null; }
+                  if (hoverContainerRef.current) { try { hoverContainerRef.current.remove(); } catch (e) {} hoverContainerRef.current = null; }
+                } catch (e) {}
+              });
             } catch (e) {}
           }
         } catch (e) {}
