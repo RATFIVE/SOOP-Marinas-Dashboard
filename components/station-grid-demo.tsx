@@ -18,7 +18,7 @@ const stations = [
     lastUpdateISO: "2025-05-14T06:14:11.000Z",
   },
   {
-    name: "Lübeck",
+  name: "Marina Lübeck \"The Newport\"",
     lat: 53.8667,
     lon: 10.6833,
     online: false,
@@ -83,7 +83,7 @@ export default function StationGridDemo() {
           online={s.online}
           metrics={s.metrics}
           lastUpdateISO={s.lastUpdateISO}
-          onMoreDetails={() => { window.location.hash = `#/station/${s.name.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}` }}
+          onMoreDetails={() => { const slug = s.name === 'Marina Lübeck "The Newport"' ? 'marina-luebeck-the-newport' : s.name.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, ''); window.location.hash = `#/station/${slug}` }}
         />
       ))}
     </div>

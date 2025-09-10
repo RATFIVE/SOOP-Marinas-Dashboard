@@ -18,7 +18,7 @@ function slugify(name: string) {
     .replace(/^-|-$/g, '');
 }
 
-export default function LuebeckPage() {
+export default function MarinaLuebeckTheNewportPage() {
   const chartData = Array.from({ length: 24 }, (_, i) => ({
     time: `${i}:00`,
     wind: 8 + Math.random() * 6,
@@ -26,18 +26,15 @@ export default function LuebeckPage() {
     level: 0.2 + Math.random() * 0.4,
     salinity: 13 + Math.random() * 2,
   }));
-    const [selectedMetric, setSelectedMetric] = useState("wind");
-    const [selectedRange, setSelectedRange] = useState("24h");
-    const station = (stationData as any).stations.find((s: any) => {
-      const sl = slugify(s.name);
-      return sl === 'lübeck' || sl === 'luebeck' || sl === 'marina-luebeck-the-newport' || s.name === 'Marina Lübeck "The Newport"';
-    }) || (stationData as any).stations[0];
-    const infoRef = useRef<HTMLDivElement | null>(null);
-    const [infoHeight, setInfoHeight] = useState<number | null>(null);
-    useEffect(() => {
-      const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); };
-      update(); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update);
-    }, []);
+  const [selectedMetric, setSelectedMetric] = useState("wind");
+  const [selectedRange, setSelectedRange] = useState("24h");
+  const station = (stationData as any).stations.find((s: any) => slugify(s.name) === 'marina-luebeck-the-newport') || (stationData as any).stations[0];
+  const infoRef = useRef<HTMLDivElement | null>(null);
+  const [infoHeight, setInfoHeight] = useState<number | null>(null);
+  useEffect(() => {
+    const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); };
+    update(); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update);
+  }, []);
 
   return (
     <SidebarProvider style={( { "--sidebar-width": "calc(var(--spacing) * 72)", "--header-height": "calc(var(--spacing) * 12)" } as any)}>
