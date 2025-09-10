@@ -248,8 +248,10 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 7, heig
         }
 
         // create an image from SVG data URL and add to the map
-        const svg = `<?xml version="1.0" encoding="utf-8"?><svg xmlns='http://www.w3.org/2000/svg' width='40' height='52' viewBox='0 0 24 24'><path d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z' fill='%23ff6666'/><circle cx='12' cy='9' r='3.5' fill='%23ffffff'/></svg>`;
+  const svg = `<?xml version="1.0" encoding="utf-8"?><svg xmlns='http://www.w3.org/2000/svg' width='40' height='52' viewBox='0 0 24 24'><path d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z' fill='%2378D278' /><circle cx='12' cy='9' r='3.5' fill='%23ffffff' /></svg>`;
         const img = new Image();
+        // ensure crossOrigin to avoid tainted canvas when using data URLs or external resources
+        img.crossOrigin = 'anonymous';
         img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
         img.onload = () => {
           try {

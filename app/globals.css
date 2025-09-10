@@ -45,7 +45,8 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  /* Site background: light gray */
+  --background: #f3f4f6;
   --foreground: oklch(0.147 0.004 49.25);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.147 0.004 49.25);
@@ -128,10 +129,18 @@
   [data-slot="card"] {
   @apply shadow-lg;
   }
+
+  /* Ensure station markers show the Mantis color even if other global rules try to override SVG fill */
+  .station-marker svg path {
+    fill: #78D278 !important;
+  }
+  .station-marker svg circle {
+    fill: #ffffff !important;
+  }
 }
 
 body {
-  @apply overscroll-none bg-transparent;
+  @apply overscroll-none bg-background;
 }
 
 :root {

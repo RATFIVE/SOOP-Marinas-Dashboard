@@ -101,14 +101,14 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
             const lat = s.location.coordinates[0];
             const el = document.createElement('div');
             el.className = 'station-marker';
-            el.style.width = '28px';
-            el.style.height = '36px';
+            el.style.width = '40px';
+            el.style.height = '52px';
             el.style.cursor = 'pointer';
             el.style.display = 'flex';
             el.style.alignItems = 'center';
             el.style.justifyContent = 'center';
             el.setAttribute('title', s.name || 'Station');
-            el.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'><path d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z' fill='%23ff6666'/><circle cx='12' cy='9' r='3.5' fill='%23ffffff'/></svg>`;
+            el.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='32' height='32'><path style="fill:#78D278" d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle style="fill:#ffffff" cx='12' cy='9' r='3.5'/></svg>`;
 
             const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).addTo(targetMap);
             markersRef.current.push(marker);
@@ -183,14 +183,14 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
               const lat = s.location.coordinates[0];
               const el = document.createElement('div');
               el.className = 'station-marker';
-              el.style.width = '28px';
-              el.style.height = '36px';
+              el.style.width = '40px';
+              el.style.height = '52px';
               el.style.cursor = 'pointer';
               el.style.display = 'flex';
               el.style.alignItems = 'center';
               el.style.justifyContent = 'center';
               el.setAttribute('title', s.name || 'Station');
-              el.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'><path d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z' fill='%23ff6666'/><circle cx='12' cy='9' r='3.5' fill='%23ffffff'/></svg>`;
+              el.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='32' height='32'><path style="fill:#78D278" d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle style="fill:#ffffff" cx='12' cy='9' r='3.5'/></svg>`;
               const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).addTo(m);
               markersRef.current.push(marker);
             } catch (e) {}
