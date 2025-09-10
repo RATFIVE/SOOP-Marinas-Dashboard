@@ -104,7 +104,23 @@ const data = {
       ],
     },
   ],
-  navSecondary: [],
+  navSecondary: [
+    {
+      title: "Disclaimer",
+      url: "/disclaimer",
+      icon: IconHelp,
+    },
+    {
+      title: "Privacy Policy",
+      url: "/privacy-policy",
+      icon: IconFileDescription,
+    },
+    {
+      title: "Legal Notice",
+      url: "/legal-notice",
+      icon: IconReport,
+    },
+  ],
   documents: [
     {
       name: "Data Library",
