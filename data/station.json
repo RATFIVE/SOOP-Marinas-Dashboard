@@ -5,7 +5,7 @@
 			"info": "Badesteg Reventlou station (public bathing pier).",
 			"email": "badesteg@example.com",
 			"phone": "+49 4301 000001",
-			"twlbox-id": "",
+			"twlbox-id": "Badesteg Reventlou",
 			"metbox-id": "",
 			"website": "https://example.com/badesteg-reventlou",
 			"location": {
@@ -18,7 +18,7 @@
 			"info": "Flensburg harbour measurement station.",
 			"email": "flensburg@example.com",
 			"phone": "+49 461 000000",
-			"twlbox-id": "",
+			"twlbox-id": "box_gmr_twl-box_0924005",
 			"metbox-id": "",
 			"website": "https://example.com/flensburg",
 			"location": {
@@ -31,7 +31,7 @@
 			"info": "Kappeln measurement station on the Schlei.",
 			"email": "kappeln@example.com",
 			"phone": "+49 4642 000000",
-			"twlbox-id": "",
+			"twlbox-id": "box_gmr_twl-box_0924002",
 			"metbox-id": "",
 			"website": "https://example.com/kappeln",
 			"location": {
@@ -40,11 +40,11 @@
 			}
 		},
 		{
-			"name": "Lübeck",
-			"info": "Lübeck harbour station.",
+			"name": "Marina Lübeck \"The Newport\"",
+			"info": "The Newport in Lübeck is a stylish waterfront restaurant and modern marina with regional cuisine, stunning Old Town views, and 50 berths for visiting boats, making it one of the Baltic Sea’s top city harbors.",
 			"email": "luebeck@example.com",
 			"phone": "+49 451 000000",
-			"twlbox-id": "",
+			"twlbox-id": "soop_box_t-box_0924003",
 			"metbox-id": "",
 			"website": "https://example.com/luebeck",
 			"location": {
@@ -57,7 +57,7 @@
 			"info": "Schilksee harbour station near Kiel.",
 			"email": "schilksee@example.com",
 			"phone": "+49 431 000000",
-			"twlbox-id": "",
+			"twlbox-id": "box_gmr_twl-box_0924004",
 			"metbox-id": "",
 			"website": "https://example.com/schilksee",
 			"location": {
@@ -70,7 +70,7 @@
 			"info": "Marina Heiligenhafen station.",
 			"email": "marina@example.com",
 			"phone": "+49 4382 000000",
-			"twlbox-id": "",
+			"twlbox-id": "box_gmr_twl-box_0924006",
 			"metbox-id": "",
 			"website": "https://example.com/marina-heiligenhafen",
 			"location": {
