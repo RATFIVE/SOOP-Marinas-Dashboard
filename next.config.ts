@@ -9,12 +9,20 @@ const ignoreDuringBuilds = eslintIgnoreEnv
   ? eslintIgnoreEnv === 'true'
   : true; // default true for now while we clean up the repo
 
-const nextConfig = {
+// Allow a temporary static export mode when NEXT_STATIC_EXPORT=true is set.
+const isStaticExport = process.env.NEXT_STATIC_EXPORT === 'true';
+
+const nextConfig: any = {
   basePath: isProd ? '/dashboard' : '',
   images: { unoptimized: true },
   eslint: {
     ignoreDuringBuilds: ignoreDuringBuilds,
   },
 };
+
+if (isStaticExport) {
+  // Next.js expects `output: 'export'` for static export mode in newer versions.
+  nextConfig.output = 'export';
+}
 
 module.exports = nextConfig;
