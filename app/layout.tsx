@@ -32,16 +32,16 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className="bg-background overscroll-none font-sans antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem={false}
           disableTransitionOnChange
           enableColorScheme
         >
-          <ActiveThemeProvider>
+          <ActiveThemeProvider initialTheme="light">
             {children}
           </ActiveThemeProvider>
         </ThemeProvider>

@@ -1,6 +1,6 @@
 # Dashboard — Lokale Entwicklungsanleitung
 
-Kurz: Dieses Repository ist eine Next.js (App‑Directory) Demo mit Leaflet‑Karte, Recharts‑AreaCharts und Tailwind‑Styling.
+Kurz: Dieses Repository ist eine Next.js (App‑Directory) Demo mit Mapbox‑Karte, Recharts‑AreaCharts und Tailwind‑Styling.
 
 ## Voraussetzungen
 - Node.js ≥ 18 (empfohlen via nvm)
@@ -57,7 +57,7 @@ PORT=3001 npm run dev
 
 ## Wichtige Hinweise zum Projekt
 - Daten: Stationsdaten liegen in `data/station.json`. Diese Datei wird zur Laufzeit gelesen.
-- Leaflet: Die Karte ist client‑only (dynamischer Import). Marker verwenden inline SVG‑Icons, damit Bundling/HMR stabil läuft.
+- Map: Die Karte ist client‑only (dynamischer Import). Mapbox GL JS wird verwendet; setze `NEXT_PUBLIC_MAPBOX_TOKEN` in `.env.local` für die Tile‑Anzeige. Marker werden als Mapbox Symbol‑Layer gerendert (SVG Icon), was Bundling/HMR stabil hält.
 - Theme: Standardmäßig wird die App im Dark‑Mode gerendert (siehe `app/layout.tsx` → `defaultTheme="dark"` und `html` hat die `dark` Klasse). Du kannst dies anpassen, wenn du Light Mode bevorzugst.
 - Account/Sidebar: Das Account‑Menü wurde temporär ausgeblendet in `components/nav-user.tsx` (Komponente gibt `null` zurück). Einfach rückgängig machen, um es wiederherzustellen.
 
@@ -67,7 +67,7 @@ PORT=3001 npm run dev
 
 ## Troubleshooting
 - JSON in `app/` kann Probleme mit Turbopack/HMR verursachen. Deshalb liegen die Stationsdaten in `data/station.json`.
-- Wenn Leaflet‑Tooltips Fehler wie `this.getPane() is undefined` oder `appendChild` werfen, wurde das Projekt so angepasst, dass Tooltips erst gerendert werden, wenn die Map‑Pane existiert (siehe `components/leaflet-map.tsx`).
+- Falls Tooltips oder Map‑Initialisierung Fehler werfen, wurde das Projekt so angepasst, dass die Map erst clientseitig initialisiert wird (siehe `components/mapbox-map.tsx`).
 - Falls HMR oder Build kaputt erscheint: Node Modules neu installieren und `.next`/Lockfile aufräumen:
 ```bash
 rm -rf node_modules .next

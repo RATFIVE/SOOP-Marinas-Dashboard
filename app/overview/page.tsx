@@ -30,7 +30,7 @@ function slugify(name: string) {
     .replace(/^-|-$/g, '');
 }
 
-const LeafletMap = dynamic(() => import("@/components/leaflet-map"), { ssr: false });
+const MapboxMap = dynamic(() => import("@/components/mapbox-map"), { ssr: false });
 
 export default function OverviewPage() {
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
@@ -91,7 +91,7 @@ export default function OverviewPage() {
               <div className="px-4 lg:px-6">
                 <h1 className="text-2xl font-bold mb-6 text-[var(--primary)]">Overview</h1>
                 <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 mb-6">
-                  <LeafletMap />
+                  <MapboxMap />
                 </div>
                 <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
                   <h2 className="text-lg font-semibold mb-4">Nearest Station</h2>
