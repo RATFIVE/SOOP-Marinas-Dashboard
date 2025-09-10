@@ -39,7 +39,7 @@ export default function KielHarbourPage() {
               <div className="mb-1 text-sm"><span className="font-semibold">Website:</span> <a href="https://www.kielharbour.de" className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">www.kielharbour.de</a></div>
             </div>
             <div className="hidden md:block">
-              <StationMapCard lat={54.3233} lon={10.1228} zoom={13} height={224} />
+              <StationMapCard lat={54.3233} lon={10.1228} zoom={16} />
             </div>
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
