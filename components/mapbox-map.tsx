@@ -20,9 +20,9 @@ function slugify(name: string) {
     .replace(/^-|-$/g, '');
 }
 
-type Props = { center?: [number, number]; zoom?: number; height?: number };
+type Props = { center?: [number, number]; zoom?: number; height?: number | 'full' };
 
-export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, height = 450 }: Props) {
+export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, height = 'full' }: Props) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const router = useRouter();
@@ -202,5 +202,7 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
     }
   }, [theme, resolvedTheme]);
 
-  return <div style={{ width: '100%', height }} ref={mapContainerRef} />;
+  const containerStyle: React.CSSProperties = { width: '100%', height: '100%' };
+  if (typeof height === 'number') containerStyle.height = `${height}px`;
+  return <div style={containerStyle} ref={mapContainerRef} />;
 }

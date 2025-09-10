@@ -90,8 +90,10 @@ export default function OverviewPage() {
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <div className="px-4 lg:px-6">
                 <h1 className="text-2xl font-bold mb-6 text-[var(--primary)]">Overview</h1>
-                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 mb-6">
-                  <MapboxMap />
+                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow mb-6 overflow-hidden" style={{ height: 500 }}>
+                  <div className="w-full h-full">
+                    <MapboxMap />
+                  </div>
                 </div>
                 <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
                   <h2 className="text-lg font-semibold mb-4">Nearest Station</h2>
