@@ -24,8 +24,8 @@ export default function StationMapCard({ lat, lon, zoom = 15, height = 240, squa
   return (
     <div className={wrapperClass}>
       <div className="w-full rounded-lg h-full" style={innerStyle}>
-        {/* MapboxMap expects center as [lat, lon] */}
-        <MapboxMap center={[lat, lon]} zoom={zoom} height={square ? 'full' : height} />
+  {/* MapboxMap expects center as [lat, lon] */}
+  <MapboxMap center={[lat, lon]} zoom={zoom} height={square ? 'full' : height} single={true} />
       </div>
     </div>
   );

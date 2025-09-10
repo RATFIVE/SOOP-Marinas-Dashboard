@@ -22,9 +22,9 @@ function slugify(name: string) {
     .replace(/^-|-$/g, '');
 }
 
-type Props = { center?: [number, number]; zoom?: number; height?: number | 'full' };
+type Props = { center?: [number, number]; zoom?: number; height?: number | 'full'; single?: boolean };
 
-export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, height = 'full' }: Props) {
+export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, height = 'full', single = false }: Props) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const router = useRouter();
@@ -98,77 +98,136 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
     const addMarkers = (targetMap: mapboxgl.Map) => {
       try {
         clearMarkers();
-        const stations = ((stationData as any).stations || []).filter((s: any) => s.location && Array.isArray(s.location.coordinates) && s.location.coordinates.length >= 2);
-        for (const s of stations) {
-          try {
-            const lng = s.location.coordinates[1];
-            const lat = s.location.coordinates[0];
-            const el = document.createElement('div');
-            el.className = 'station-marker';
-            el.style.width = '40px';
-            el.style.height = '52px';
-            el.style.cursor = 'pointer';
-            el.style.display = 'flex';
-            el.style.alignItems = 'center';
-            el.style.justifyContent = 'center';
-            el.setAttribute('title', s.name || 'Station');
-            el.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='32' height='32'><path style="fill:#78D278" d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle style="fill:#ffffff" cx='12' cy='9' r='3.5'/></svg>`;
+        if (single) {
+          // add only one marker at the provided center and focus the map there
+          const lng = center[1];
+          const lat = center[0];
+          const el = document.createElement('div');
+          el.className = 'station-marker';
+          el.style.width = '40px';
+          el.style.height = '52px';
+          el.style.cursor = 'pointer';
+          el.style.display = 'flex';
+          el.style.alignItems = 'center';
+          el.style.justifyContent = 'center';
+          el.setAttribute('title', 'Station');
+          el.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='32' height='32'><path style="fill:#78D278" d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle style="fill:#ffffff" cx='12' cy='9' r='3.5'/></svg>`;
 
-            const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).addTo(targetMap);
-            markersRef.current.push(marker);
+          const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).addTo(targetMap);
+          markersRef.current.push(marker);
 
-            el.addEventListener('mouseenter', () => {
-              try {
-                // create container for React root
-                if (hoverRootRef.current) {
-                  try { hoverRootRef.current.unmount(); } catch (e) {}
-                  hoverRootRef.current = null;
-                }
-                if (hoverContainerRef.current) {
-                  try { hoverContainerRef.current.remove(); } catch (e) {}
-                  hoverContainerRef.current = null;
-                }
+          // try to locate a station with same coordinates to provide hover content
+          const stations = ((stationData as any).stations || []).filter((s: any) => s.location && Array.isArray(s.location.coordinates) && s.location.coordinates.length >= 2);
+          const matched = stations.find((s: any) => {
+            const sLat = Number(s.location.coordinates[0]);
+            const sLng = Number(s.location.coordinates[1]);
+            return Math.abs(sLat - lat) < 1e-6 && Math.abs(sLng - lng) < 1e-6;
+          });
+
+          el.addEventListener('mouseenter', () => {
+            try {
+              if (matched) {
+                if (hoverRootRef.current) { try { hoverRootRef.current.unmount(); } catch (e) {} hoverRootRef.current = null; }
+                if (hoverContainerRef.current) { try { hoverContainerRef.current.remove(); } catch (e) {} hoverContainerRef.current = null; }
                 const container = document.createElement('div');
                 container.className = 'mapbox-popup-react-container';
                 hoverContainerRef.current = container;
                 hoverRootRef.current = createRoot(container);
                 hoverRootRef.current.render(
                   <StationCard
-                    name={s.name || ''}
+                    name={matched.name || ''}
                     lat={lat}
                     lon={lng}
                     online={true}
-                    metrics={[
-                      { label: 'Average wind', value: '—' },
-                      { label: 'Temperature', value: '—' },
-                      { label: 'Water level', value: '—' },
-                      { label: 'Salinity', value: '—' },
-                    ]}
+                    metrics={[{ label: 'Average wind', value: '—' },{ label: 'Temperature', value: '—' },{ label: 'Water level', value: '—' },{ label: 'Salinity', value: '—' }]}
                     lastUpdateISO={new Date().toISOString()}
                     compact={true}
-                    onMoreDetails={() => { try { router.push(`/stations/${slugify(s.name || '')}`); } catch (e) {} }}
+                    onMoreDetails={() => { try { router.push(`/stations/${slugify(matched.name || '')}`); } catch (e) {} }}
                   />
                 );
                 if (!hoverPopupRef.current) hoverPopupRef.current = new mapboxgl.Popup({ offset: 8, closeButton: false, closeOnClick: false });
                 hoverPopupRef.current.setLngLat([lng, lat]).setDOMContent(container).addTo(targetMap);
-              } catch (e) {}
-            });
-            el.addEventListener('mouseleave', () => {
-              try {
-                if (hoverPopupRef.current) { hoverPopupRef.current.remove(); hoverPopupRef.current = null; }
-                if (hoverRootRef.current) { try { hoverRootRef.current.unmount(); } catch (e) {} hoverRootRef.current = null; }
-                if (hoverContainerRef.current) { try { hoverContainerRef.current.remove(); } catch (e) {} hoverContainerRef.current = null; }
-              } catch (e) {}
-            });
-            el.addEventListener('click', () => {
-              try {
-                const popupHtml = `<div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-3"><div class="font-bold">${s.name || ''}</div><div class="text-xs text-gray-500">${lat.toFixed(4)}, ${lng.toFixed(4)}</div><p class="mt-2 text-sm text-gray-700 dark:text-gray-300">${s.info || ''}</p></div>`;
-                new mapboxgl.Popup({ offset: 20, closeButton: false }).setLngLat([lng, lat]).setHTML(popupHtml).addTo(targetMap);
-                try { router.push(`/stations/${slugify(s.name || '')}`); } catch (e) {}
-              } catch (e) {}
-            });
-          } catch (e) {
-            console.debug('[Mapbox] create marker failed', e);
+              }
+            } catch (e) {}
+          });
+          el.addEventListener('mouseleave', () => {
+            try {
+              if (hoverPopupRef.current) { hoverPopupRef.current.remove(); hoverPopupRef.current = null; }
+              if (hoverRootRef.current) { try { hoverRootRef.current.unmount(); } catch (e) {} hoverRootRef.current = null; }
+              if (hoverContainerRef.current) { try { hoverContainerRef.current.remove(); } catch (e) {} hoverContainerRef.current = null; }
+            } catch (e) {}
+          });
+          el.addEventListener('click', () => {
+            try {
+              if (matched) {
+                try { router.push(`/stations/${slugify(matched.name || '')}`); } catch (e) {}
+              }
+            } catch (e) {}
+          });
+
+          // center and zoom to the provided center
+          try { targetMap.setCenter([lng, lat]); targetMap.setZoom(zoom); } catch (e) {}
+        } else {
+          const stations = ((stationData as any).stations || []).filter((s: any) => s.location && Array.isArray(s.location.coordinates) && s.location.coordinates.length >= 2);
+          for (const s of stations) {
+            try {
+              const lng = s.location.coordinates[1];
+              const lat = s.location.coordinates[0];
+              const el = document.createElement('div');
+              el.className = 'station-marker';
+              el.style.width = '40px';
+              el.style.height = '52px';
+              el.style.cursor = 'pointer';
+              el.style.display = 'flex';
+              el.style.alignItems = 'center';
+              el.style.justifyContent = 'center';
+              el.setAttribute('title', s.name || 'Station');
+              el.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='32' height='32'><path style="fill:#78D278" d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle style="fill:#ffffff" cx='12' cy='9' r='3.5'/></svg>`;
+
+              const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).addTo(targetMap);
+              markersRef.current.push(marker);
+
+              el.addEventListener('mouseenter', () => {
+                try {
+                  if (hoverRootRef.current) { try { hoverRootRef.current.unmount(); } catch (e) {} hoverRootRef.current = null; }
+                  if (hoverContainerRef.current) { try { hoverContainerRef.current.remove(); } catch (e) {} hoverContainerRef.current = null; }
+                  const container = document.createElement('div');
+                  container.className = 'mapbox-popup-react-container';
+                  hoverContainerRef.current = container;
+                  hoverRootRef.current = createRoot(container);
+                  hoverRootRef.current.render(
+                    <StationCard
+                      name={s.name || ''}
+                      lat={lat}
+                      lon={lng}
+                      online={true}
+                      metrics={[{ label: 'Average wind', value: '—' },{ label: 'Temperature', value: '—' },{ label: 'Water level', value: '—' },{ label: 'Salinity', value: '—' }]}
+                      lastUpdateISO={new Date().toISOString()}
+                      compact={true}
+                      onMoreDetails={() => { try { router.push(`/stations/${slugify(s.name || '')}`); } catch (e) {} }}
+                    />
+                  );
+                  if (!hoverPopupRef.current) hoverPopupRef.current = new mapboxgl.Popup({ offset: 8, closeButton: false, closeOnClick: false });
+                  hoverPopupRef.current.setLngLat([lng, lat]).setDOMContent(container).addTo(targetMap);
+                } catch (e) {}
+              });
+              el.addEventListener('mouseleave', () => {
+                try {
+                  if (hoverPopupRef.current) { hoverPopupRef.current.remove(); hoverPopupRef.current = null; }
+                  if (hoverRootRef.current) { try { hoverRootRef.current.unmount(); } catch (e) {} hoverRootRef.current = null; }
+                  if (hoverContainerRef.current) { try { hoverContainerRef.current.remove(); } catch (e) {} hoverContainerRef.current = null; }
+                } catch (e) {}
+              });
+              el.addEventListener('click', () => {
+                try {
+                  const popupHtml = `<div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-3"><div class="font-bold">${s.name || ''}</div><div class="text-xs text-gray-500">${lat.toFixed(4)}, ${lng.toFixed(4)}</div><p class="mt-2 text-sm text-gray-700 dark:text-gray-300">${s.info || ''}</p></div>`;
+                  new mapboxgl.Popup({ offset: 20, closeButton: false }).setLngLat([lng, lat]).setHTML(popupHtml).addTo(targetMap);
+                  try { router.push(`/stations/${slugify(s.name || '')}`); } catch (e) {}
+                } catch (e) {}
+              });
+            } catch (e) {
+              console.debug('[Mapbox] create marker failed', e);
+            }
           }
         }
       } catch (e) {
@@ -178,16 +237,20 @@ export default function MapboxMap({ center = [54.3233, 10.1228], zoom = 7, heigh
 
     map.once('styledata', () => addMarkers(map));
 
-    // fit to stations
+    // fit to stations (unless single focus mode)
     try {
-      const stations = ((stationData as any).stations || []).filter((s: any) => s.location && Array.isArray(s.location.coordinates) && s.location.coordinates.length >= 2);
-      const coords: [number, number][] = stations.map((s: any) => [s.location.coordinates[1], s.location.coordinates[0]]);
-      if (coords.length === 1) {
-        map.setCenter(coords[0]);
-        map.setZoom(zoom);
-      } else if (coords.length > 1) {
-        const bounds = coords.reduce((b, c) => b.extend(c as [number, number]), new mapboxgl.LngLatBounds(coords[0], coords[0]));
-        map.fitBounds(bounds, { padding: 40 });
+      if (single) {
+        try { map.setCenter([center[1], center[0]]); map.setZoom(zoom); } catch (e) {}
+      } else {
+        const stations = ((stationData as any).stations || []).filter((s: any) => s.location && Array.isArray(s.location.coordinates) && s.location.coordinates.length >= 2);
+        const coords: [number, number][] = stations.map((s: any) => [s.location.coordinates[1], s.location.coordinates[0]]);
+        if (coords.length === 1) {
+          map.setCenter(coords[0]);
+          map.setZoom(zoom);
+        } else if (coords.length > 1) {
+          const bounds = coords.reduce((b, c) => b.extend(c as [number, number]), new mapboxgl.LngLatBounds(coords[0], coords[0]));
+          map.fitBounds(bounds, { padding: 40 });
+        }
       }
     } catch (e) {
       // ignore
