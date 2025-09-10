@@ -13,7 +13,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   // Breadcrumb-Logik für Stations-Unterseiten
   let breadcrumb: React.ReactNode = null;
-  if (pathname.startsWith("/stations/") && pathname.split("/").length === 3) {
+  if (pathname && pathname.startsWith("/stations/") && pathname.split("/").length === 3) {
     const stationName = pathname.split("/")[2].replace(/\b\w/g, c => c.toUpperCase()).replace(/-/g, " ");
     breadcrumb = (
       <nav className="flex items-center gap-1 text-base font-medium">
@@ -23,7 +23,8 @@ export function SiteHeader() {
       </nav>
     );
   } else {
-    breadcrumb = <h1 className="text-base font-medium">{pathname === "/" ? "Home" : pathname.replace(/^\//, "").replace(/\b\w/g, c => c.toUpperCase())}</h1>;
+    const title = pathname ? (pathname === "/" ? "Home" : pathname.replace(/^\//, "").replace(/\b\w/g, c => c.toUpperCase())) : "";
+    breadcrumb = <h1 className="text-base font-medium">{title}</h1>;
   }
   return (
     <header className="bg-white z-10 flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
