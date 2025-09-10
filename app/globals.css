@@ -123,6 +123,13 @@
   }
 }
 
+@layer components {
+  /* Make card shadows slightly larger globally */
+  [data-slot="card"] {
+  @apply shadow-lg;
+  }
+}
+
 body {
   @apply overscroll-none bg-transparent;
 }
