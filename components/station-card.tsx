@@ -38,8 +38,8 @@ function formatLastUpdate(iso: string) {
 
 export default function StationCard({ name, lat, lon, online, metrics, lastUpdateISO, onMoreDetails, compact = false }: StationCardProps) {
   const baseClasses = compact
-    ? 'inline-block w-auto rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-3 sm:p-4'
-    : 'w-full rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 sm:p-5';
+    ? 'inline-block w-auto rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-2 sm:p-3'
+    : 'w-full rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-3 sm:p-4';
 
   return (
     <Card className={baseClasses}>
@@ -55,22 +55,22 @@ export default function StationCard({ name, lat, lon, online, metrics, lastUpdat
           <div className="flex items-start">
             <Badge
               variant={online ? "secondary" : "outline"}
-              className={`rounded-full px-3 py-1 flex items-center gap-2 ${online ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300"}`}
+              className={`rounded-full px-2 py-0.5 flex items-center gap-2 ${online ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300"}`}
               aria-label={online ? "Online" : "Offline"}
             >
               <Wifi className={`w-4 h-4 ${online ? "text-green-600" : "text-gray-500"}`} />
-              <span className="text-xs font-medium">{online ? "Online" : "Offline"}</span>
+              <span className="text-sm font-medium">{online ? "Online" : "Offline"}</span>
             </Badge>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="p-0 mt-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+  <CardContent className="p-0 mt-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
           {metrics.map((m, i) => {
             const key = `${m.label}-${i}`;
             return (
-              <div key={key} className="flex items-center justify-between bg-transparent">
+      <div key={key} className="flex items-center justify-between bg-transparent py-1">
                 <div className="flex items-center gap-3">
                   {/* choose icon by heuristic label */}
                   <span className="text-muted-foreground">
@@ -84,32 +84,31 @@ export default function StationCard({ name, lat, lon, online, metrics, lastUpdat
                     <div className="text-sm text-muted-foreground">{m.label}</div>
                   </div>
                 </div>
-                <div className="text-sm font-medium">{m.value}</div>
+                <div className="text-base font-medium">{m.value}</div>
               </div>
             );
           })}
         </div>
       </CardContent>
-
-      <div className="mt-4">
+      <div className="mt-3">
         <Separator />
       </div>
 
-      <CardFooter className="p-0 mt-3">
+      <CardFooter className="p-0 mt-2">
         <div className="flex items-center justify-between text-sm text-muted-foreground w-full">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-[var(--muted)]" />
-            <span>Last update:&nbsp;</span>
+            <span className="text-sm">Last update:&nbsp;</span>
             <time dateTime={lastUpdateISO} className="font-medium text-sm">{formatLastUpdate(lastUpdateISO)}</time>
           </div>
           <div className="text-right hidden sm:block text-sm text-muted-foreground" aria-hidden> </div>
         </div>
       </CardFooter>
 
-      <div className="mt-3">
+      <div className="mt-2">
         <Button
           variant="outline"
-          className="w-full flex items-center justify-center gap-2"
+          className="w-full flex items-center justify-center gap-2 py-2 text-base"
           onClick={onMoreDetails}
           aria-label={`More details for ${name}`}
         >
