@@ -208,6 +208,25 @@ body {
   }
 }
 
+/* --- Remove all rounded corners globally --- */
+:root {
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+}
+
+/* Override common Tailwind rounded utilities to ensure no element keeps a border-radius */
+.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, .rounded-xs, .rounded-full, [class*='rounded-'] {
+  border-radius: 0 !important;
+}
+
+/* Additional safety: remove border-radius from all elements */
+* {
+  border-radius: 0 !important;
+}
+
 .theme-mono,
 .theme-mono-scaled {
   --font-sans: var(--font-mono);
