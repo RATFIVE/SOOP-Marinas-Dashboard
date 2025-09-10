@@ -39,19 +39,19 @@ export default function KielHarbourPage() {
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2">Windgeschwindigkeit</h3>
+                <h3 className="text-lg font-semibold mb-2">Wind speed</h3>
               <p className="text-2xl font-bold text-[var(--primary)]">12,3 m/s</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2">Wassertemperatur</h3>
+                <h3 className="text-lg font-semibold mb-2">Water temperature</h3>
               <p className="text-2xl font-bold text-[var(--primary)]">17,8 °C</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2">Wasserstand</h3>
+                <h3 className="text-lg font-semibold mb-2">Water level</h3>
               <p className="text-2xl font-bold text-[var(--primary)]">+0,42 m</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2">Salinität</h3>
+                <h3 className="text-lg font-semibold mb-2">Salinity</h3>
               <p className="text-2xl font-bold text-[var(--primary)]">14,2 PSU</p>
             </div>
           </div>
@@ -59,27 +59,27 @@ export default function KielHarbourPage() {
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <div className="flex gap-2">
-                <label className="font-semibold">Zeitraum:</label>
+                <label className="font-semibold">Time range:</label>
                 <select
                   className="border rounded px-2 py-1 dark:bg-zinc-800"
                   value={selectedRange}
                   onChange={e => setSelectedRange(e.target.value)}
                 >
-                  <option value="24h">Letzte 24h</option>
-                  <option value="7d">Letzte 7 Tage</option>
-                  <option value="30d">Letzte 30 Tage</option>
+                  <option value="24h">Last 24h</option>
+                  <option value="7d">Last 7 days</option>
+                  <option value="30d">Last 30 days</option>
                 </select>
               </div>
               <div className="flex gap-2">
-                <label className="font-semibold">Messgröße:</label>
+                <label className="font-semibold">Metric:</label>
                 <select
                   className="border rounded px-2 py-1 dark:bg-zinc-800"
                   value={selectedMetric}
                   onChange={e => setSelectedMetric(e.target.value)}
                 >
-                  <option value="wind">Windgeschwindigkeit</option>
-                  <option value="temp">Wassertemperatur</option>
-                  <option value="level">Wasserstand</option>
+                  <option value="wind">Wind speed</option>
+                  <option value="temp">Water temperature</option>
+                  <option value="level">Water level</option>
                   <option value="salinity">Salinity</option>
                 </select>
               </div>

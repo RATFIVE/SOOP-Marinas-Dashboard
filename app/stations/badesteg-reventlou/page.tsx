@@ -41,7 +41,7 @@ export default function BadestegReventlouPage() {
         <SiteHeader />
         <div className="flex flex-1 flex-col items-center p-8 gap-6">
           <h2 className="text-xl font-bold mb-2 w-full text-[var(--primary)]">Info</h2>
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full">
+            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full">
             <h3 className="text-lg font-bold mb-2 text-[var(--primary)]">{station.name}</h3>
             <p className="mb-2 text-gray-700 dark:text-gray-300">{station.info}</p>
             <div className="mb-1 text-sm"><span className="font-semibold">Mail:</span> {station.email}</div>
@@ -51,19 +51,19 @@ export default function BadestegReventlouPage() {
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2 text-[var(--primary)]">Windgeschwindigkeit</h3>
+              <h3 className="text-lg font-semibold mb-2 text-[var(--primary)]">Wind speed</h3>
               <p className="text-2xl font-bold text-[var(--primary)]">{(8 + Math.random()*6).toFixed(1)} m/s</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2 text-[var(--primary)]">Wassertemperatur</h3>
+              <h3 className="text-lg font-semibold mb-2 text-[var(--primary)]">Water temperature</h3>
               <p className="text-2xl font-bold text-[var(--primary)]">{(14 + Math.random()*4).toFixed(1)} °C</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2">Wasserstand</h3>
+              <h3 className="text-lg font-semibold mb-2">Water level</h3>
               <p className="text-2xl font-bold">{(0.2 + Math.random()*0.4).toFixed(2)} m</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2">Salinität</h3>
+              <h3 className="text-lg font-semibold mb-2">Salinity</h3>
               <p className="text-2xl font-bold">{(13 + Math.random()*2).toFixed(1)} PSU</p>
             </div>
           </div>
@@ -71,27 +71,27 @@ export default function BadestegReventlouPage() {
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <div className="flex gap-2">
-                <label className="font-semibold">Zeitraum:</label>
+                <label className="font-semibold">Time range:</label>
                 <select
                   className="border rounded px-2 py-1 dark:bg-zinc-800"
                   value={selectedRange}
                   onChange={e => setSelectedRange(e.target.value)}
                 >
-                  <option value="24h">Letzte 24h</option>
-                  <option value="7d">Letzte 7 Tage</option>
-                  <option value="30d">Letzte 30 Tage</option>
+                  <option value="24h">Last 24h</option>
+                  <option value="7d">Last 7 days</option>
+                  <option value="30d">Last 30 days</option>
                 </select>
               </div>
               <div className="flex gap-2">
-                <label className="font-semibold">Messgröße:</label>
+                <label className="font-semibold">Metric:</label>
                 <select
                   className="border rounded px-2 py-1 dark:bg-zinc-800"
                   value={selectedMetric}
                   onChange={e => setSelectedMetric(e.target.value)}
                 >
-                  <option value="wind">Windgeschwindigkeit</option>
-                  <option value="temp">Wassertemperatur</option>
-                  <option value="level">Wasserstand</option>
+                  <option value="wind">Wind speed</option>
+                  <option value="temp">Water temperature</option>
+                  <option value="level">Water level</option>
                   <option value="salinity">Salinity</option>
                 </select>
               </div>

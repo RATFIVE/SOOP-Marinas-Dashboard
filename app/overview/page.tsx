@@ -132,7 +132,7 @@ export default function OverviewPage() {
                         );
                       })()
                     ) : (
-                      <div>Keine Station verfügbar.</div>
+                      <div>No station available.</div>
                     )}
                   </div>
                 </div>
