@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useState, useRef, useEffect } from "react";
 import { getSidebarStyle } from '@/lib/ui';
-import useThingObservations from '@/lib/useFrost';
+import useThingObservations, { useThingSeries } from '@/lib/useFrost';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import StationMapCard from '@/components/station-map-card';
 
@@ -70,13 +70,22 @@ export default function TheNewportMarinaLuebeckPage() {
   const [selectedMetric, setSelectedMetric] = useState("wind");
   const [selectedRange, setSelectedRange] = useState("24h");
   const infoRef = useRef<HTMLDivElement | null>(null);
-  // Deterministische Platzhalterdaten (kein Math.random für SSR Konsistenz)
-  const chartData: Array<Record<string, string | number>> = Array.from({ length: 24 }, (_, i) => ({
-    time: `${i}:00`,
-    wind: Number((8 + ((i * 37) % 600) / 100).toFixed(2)),
-    temp: Number((14 + ((i * 53) % 400) / 100).toFixed(2)),
-    level: Number((0.2 + ((i * 29) % 40) / 100).toFixed(3)),
-  }));
+  // Mapping Time Range -> Stunden für historischen Abruf
+  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
+  const hours = rangeToHours[selectedRange] || 24;
+
+  // Historische Reihen (Temperature/Level über TWL Box, Wind über MET Box)
+  const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp','temperature','level'], hours);
+  const { loading: metSeriesLoading, error: metSeriesError, series: metSeries } = useThingSeries(metId || null, ['wind','wind speed','windspeed'], hours);
+
+  let chartData: Array<Record<string, string | number>> = [];
+  if (selectedMetric === 'wind') {
+    chartData = (metSeries && metSeries.length > 0) ? metSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), wind: s.value })) : [];
+  } else if (selectedMetric === 'temp') {
+    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
+  } else if (selectedMetric === 'level') {
+    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), level: s.value })) : [];
+  }
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   useEffect(() => {
     const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); };
@@ -187,12 +196,26 @@ export default function TheNewportMarinaLuebeckPage() {
             </div>
             <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="time" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
-                </AreaChart>
+                {(twlSeriesLoading || metSeriesLoading) ? (
+                  <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">Loading series…</div>
+                ) : (
+                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => {
+                      if (selectedMetric === 'temp') return `${Number(v).toFixed(1)} °C`;
+                      if (selectedMetric === 'level') return `${Number(v).toFixed(2)} m`;
+                      if (selectedMetric === 'wind') return `${Number(v).toFixed(1)} m/s`;
+                      return v as any;
+                    }} />
+                    <Tooltip formatter={(value: number | string) => {
+                      if (selectedMetric === 'temp') return [`${Number(value).toFixed(1)} °C`, 'Temperature'];
+                      if (selectedMetric === 'level') return [`${Number(value).toFixed(2)} m`, 'Level'];
+                      if (selectedMetric === 'wind') return [`${Number(value).toFixed(1)} m/s`, 'Wind'];
+                      return [value, ''];
+                    }} labelFormatter={(l) => l} />
+                    <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
+                  </AreaChart>
+                )}
               </ResponsiveContainer>
             </div>
           </div>

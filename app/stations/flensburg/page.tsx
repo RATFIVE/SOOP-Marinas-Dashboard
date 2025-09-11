@@ -3,7 +3,7 @@ import stations from '@/lib/station';
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import useThingObservations, { useThingSeries } from '@/lib/useFrost';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -61,13 +61,23 @@ export default function FlensburgPage() {
   // build chartData depending on selectedMetric
   let chartData: Array<Record<string, string | number>> = [];
   if (selectedMetric === 'wind') {
-    chartData = (metSeries && metSeries.length > 0) ? metSeries.map(s => ({ time: new Date(s.time).toLocaleString([], { hour: '2-digit', minute: '2-digit' }), wind: s.value })) : [];
+    chartData = (metSeries && metSeries.length > 0) ? metSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), wind: s.value })) : [];
   } else if (selectedMetric === 'temp') {
-    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
+    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
   } else if (selectedMetric === 'level') {
-    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleString([], { hour: '2-digit', minute: '2-digit' }), level: s.value })) : [];
+    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), level: s.value })) : [];
   }
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
+  const yDomain = useMemo(() => {
+    if (!chartData.length) return undefined;
+    const key = selectedMetric;
+    const values = chartData.map(d => typeof d[key] === 'number' ? d[key] as number : Number(d[key])).filter(v => !isNaN(v));
+    if (!values.length) return undefined;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const pad = ((max - min) || 1) * 0.1;
+    return [Number((min - pad).toFixed(2)), Number((max + pad).toFixed(2))] as [number, number];
+  }, [chartData, selectedMetric]);
   useEffect(() => {
     const update = () => {
       const h = infoRef.current?.getBoundingClientRect().height ?? 0;
@@ -164,7 +174,7 @@ export default function FlensburgPage() {
                   ) : (
                     <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                       <XAxis dataKey="time" tick={{ fontSize: 12 }} />
-                      <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => {
+                      <YAxis domain={yDomain as any} tick={{ fontSize: 12 }} tickFormatter={(v) => {
                         if (selectedMetric === 'temp') return `${Number(v).toFixed(1)} °C`;
                         if (selectedMetric === 'level') return `${Number(v).toFixed(2)} m`;
                         if (selectedMetric === 'wind') return `${Number(v).toFixed(1)} m/s`;

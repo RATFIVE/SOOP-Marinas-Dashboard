@@ -3,7 +3,7 @@ import stations from '@/lib/station';
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import useThingObservations, { useThingSeries } from '@/lib/useFrost';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -61,6 +61,15 @@ export default function BadestegReventlouPage() {
   // try to load a historical temperature series for the twl thing
   const { loading: seriesLoading, error: seriesError, series } = useThingSeries(twlId || null, ['temp', 'temperature'], 24);
   const chartData = (series && series.length > 0) ? series.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
+  const yDomain = useMemo(() => {
+    if (!chartData.length) return [0, 1] as [number, number];
+    const values = chartData.map(d => typeof d.temp === 'number' ? d.temp : Number(d.temp)).filter(v => !isNaN(v));
+    if (!values.length) return [0,1] as [number, number];
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const pad = ((max - min) || 1) * 0.1;
+    return [Number((min - pad).toFixed(2)), Number((max + pad).toFixed(2))] as [number, number];
+  }, [chartData]);
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   useEffect(() => { const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); }; update(); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update); }, []);
   const sidebarStyle: React.CSSProperties & Record<string, string> = {
@@ -131,7 +140,7 @@ export default function BadestegReventlouPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <XAxis dataKey="time" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${Number(v).toFixed(1)} °C`} />
+                    <YAxis domain={yDomain} tick={{ fontSize: 12 }} tickFormatter={(v) => `${Number(v).toFixed(1)} °C`} />
                     <Tooltip formatter={(value: number | string) => [`${Number(value).toFixed(1)} °C`, 'Temperature']} labelFormatter={(label) => label} />
                     <Area type="monotone" dataKey="temp" stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
                   </AreaChart>

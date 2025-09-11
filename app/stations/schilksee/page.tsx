@@ -3,10 +3,10 @@ import stations from '@/lib/station';
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { getSidebarStyle } from '@/lib/ui';
-import useThingObservations from '@/lib/useFrost';
+import useThingObservations, { useThingSeries } from '@/lib/useFrost';
 import StationMapCard from '@/components/station-map-card';
 
 function slugify(name: string) {
@@ -64,15 +64,30 @@ export default function SchilkseePage() {
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'height']) : null;
   // salinity entfernt
-  // Deterministische Dummy-Daten statt Math.random für SSR Hydration Stabilität
-  const chartData: Array<Record<string, string | number>> = Array.from({ length: 24 }, (_, i) => ({
-    time: `${i}:00`,
-    wind: Number((8 + ((i * 41) % 600) / 100).toFixed(2)),
-    temp: Number((14 + ((i * 59) % 400) / 100).toFixed(2)),
-    level: Number((0.2 + ((i * 31) % 40) / 100).toFixed(3)),
-  }));
+  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
+  const hours = rangeToHours[selectedRange] || 24;
+  const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp','temperature','level'], hours);
+  const { loading: metSeriesLoading, error: metSeriesError, series: metSeries } = useThingSeries(metId || null, ['wind','wind speed','windspeed'], hours);
+  let chartData: Array<Record<string, string | number>> = [];
+  if (selectedMetric === 'wind') {
+    chartData = (metSeries && metSeries.length > 0) ? metSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), wind: s.value })) : [];
+  } else if (selectedMetric === 'temp') {
+    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
+  } else if (selectedMetric === 'level') {
+    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), level: s.value })) : [];
+  }
   const infoRef = useRef<HTMLDivElement | null>(null);
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
+  const yDomain = useMemo(() => {
+    if (!chartData.length) return undefined;
+    const key = selectedMetric;
+    const values = chartData.map(d => typeof d[key] === 'number' ? d[key] as number : Number(d[key])).filter(v => !isNaN(v));
+    if (!values.length) return undefined;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const pad = ((max - min) || 1) * 0.1;
+    return [Number((min - pad).toFixed(2)), Number((max + pad).toFixed(2))] as [number, number];
+  }, [chartData, selectedMetric]);
 
   useEffect(() => {
     const update = () => {
@@ -150,12 +165,26 @@ export default function SchilkseePage() {
             </div>
             <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="time" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
-                </AreaChart>
+                {(twlSeriesLoading || metSeriesLoading) ? (
+                  <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">Loading series…</div>
+                ) : (
+                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                    <YAxis domain={yDomain as any} tick={{ fontSize: 12 }} tickFormatter={(v) => {
+                      if (selectedMetric === 'temp') return `${Number(v).toFixed(1)} °C`;
+                      if (selectedMetric === 'level') return `${Number(v).toFixed(2)} m`;
+                      if (selectedMetric === 'wind') return `${Number(v).toFixed(1)} m/s`;
+                      return v as any;
+                    }} />
+                    <Tooltip formatter={(value: number | string) => {
+                      if (selectedMetric === 'temp') return [`${Number(value).toFixed(1)} °C`, 'Temperature'];
+                      if (selectedMetric === 'level') return [`${Number(value).toFixed(2)} m`, 'Level'];
+                      if (selectedMetric === 'wind') return [`${Number(value).toFixed(1)} m/s`, 'Wind'];
+                      return [value, ''];
+                    }} labelFormatter={(l) => l} />
+                    <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
+                  </AreaChart>
+                )}
               </ResponsiveContainer>
             </div>
           </div>
