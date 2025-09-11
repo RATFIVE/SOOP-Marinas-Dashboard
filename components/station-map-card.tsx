@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import LeafletMap from '@/components/leaflet-map';
 
 type Props = {
@@ -21,11 +21,20 @@ export default function StationMapCard({ lat, lon, zoom = 15, height = 240, squa
   // minHeight ensures a reasonable footprint when square (width may be small on narrow layouts)
   if (square) innerStyle.minHeight = height;
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  // Trigger ResizeObserver friendly event for Leaflet after mount
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (!containerRef.current) return;
+      window.dispatchEvent(new Event('resize'));
+    }, 50);
+    return () => clearTimeout(t);
+  }, [lat, lon, zoom, height, square]);
+
   return (
-    <div className={wrapperClass}>
+    <div className={wrapperClass} ref={containerRef}>
       <div className="w-full rounded-lg h-full shadow-lg shadow-black/10 dark:shadow-black/40" style={innerStyle}>
-  {/* LeafletMap expects center as [lat, lon] */}
-  <LeafletMap center={[lat, lon]} zoom={zoom} height={square ? 'full' : height} single={true} />
+        <LeafletMap center={[lat, lon]} zoom={zoom} height={square ? 'full' : height} single={true} />
       </div>
     </div>
   );

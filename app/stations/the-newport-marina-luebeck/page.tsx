@@ -20,11 +20,11 @@ function slugify(name: string) {
     .replace(/^-|-$/g, '');
 }
 
-// Neue offizielle Seite (neuer Slug). Alte Seite 'marina-luebeck-the-newport' bleibt als Legacy.
+// Stationsseite The Newport Marina, Lübeck
 export default function TheNewportMarinaLuebeckPage() {
   const stationRaw = stations.find((s) => {
     const sl = slugify(s.name);
-    return sl === 'the-newport-marina-luebeck' || sl === 'the-newport-marina-lubeck' || sl === 'marina-luebeck-the-newport';
+  return sl === 'the-newport-marina-luebeck' || sl === 'the-newport-marina-lubeck';
   }) || stations[0];
   const twlId = stationRaw['twlbox-id'] || '';
   const metId = stationRaw['metbox-id'] || '';
@@ -64,22 +64,29 @@ export default function TheNewportMarinaLuebeckPage() {
   };
 
   const windVal = metId ? getLatestValue(adaptObsMap(metObs), ['wind', 'wind speed', 'windspeed']) : null;
+  const windDirVal = metId ? getLatestValue(adaptObsMap(metObs), ['direction', 'wind direction', 'winddir', 'dir']) : null;
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'water temperature', 'watertemperature', 'waterTemp', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'water level', 'waterlevel', 'height']) : null;
   const [selectedMetric, setSelectedMetric] = useState("wind");
   const [selectedRange, setSelectedRange] = useState("24h");
   const infoRef = useRef<HTMLDivElement | null>(null);
+  // Deterministische Platzhalterdaten (kein Math.random für SSR Konsistenz)
   const chartData: Array<Record<string, string | number>> = Array.from({ length: 24 }, (_, i) => ({
     time: `${i}:00`,
-    wind: 8 + Math.random() * 6,
-    temp: 14 + Math.random() * 4,
-    level: 0.2 + Math.random() * 0.4,
+    wind: Number((8 + ((i * 37) % 600) / 100).toFixed(2)),
+    temp: Number((14 + ((i * 53) % 400) / 100).toFixed(2)),
+    level: Number((0.2 + ((i * 29) % 40) / 100).toFixed(3)),
   }));
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   useEffect(() => {
     const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); };
     update(); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update);
   }, []);
+
+  const toCardinal = (deg: number) => {
+    const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+    return dirs[Math.round(((deg % 360) / 22.5)) % 16];
+  };
 
   return (
     <SidebarProvider style={getSidebarStyle()}>
@@ -107,10 +114,36 @@ export default function TheNewportMarinaLuebeckPage() {
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {metId && (
+              <>
               <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-2">Wind speed</h3>
                 <p className="text-2xl font-bold text-[var(--primary)]">{windVal ? `${Number(windVal.value).toFixed(1)} m/s` : (metLoading ? 'Loading…' : 'n/a')}</p>
               </div>
+              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
+                <h3 className="text-lg font-semibold mb-2">Wind direction</h3>
+                {windDirVal ? (
+                  <div className="flex items-center gap-4">
+                    <div className="text-2xl font-bold text-[var(--primary)]">
+                      {Number(windDirVal.value).toFixed(0)}°
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
+                        {toCardinal(Number(windDirVal.value))}
+                      </div>
+                    </div>
+                    <div className="w-12 h-12 flex items-center justify-center relative">
+                      <div className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center">
+                        <div
+                          className="w-0 h-0 border-l-4 border-r-4 border-b-[14px] border-l-transparent border-r-transparent border-b-[var(--primary)]"
+                          style={{ transform: `rotate(${Number(windDirVal.value)}deg)` }}
+                          aria-label="Wind direction arrow"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-bold text-[var(--primary)]">{metLoading ? 'Loading…' : 'n/a'}</p>
+                )}
+              </div>
+              </>
             )}
             {twlId && (
               <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">

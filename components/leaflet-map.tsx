@@ -151,5 +151,13 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 7, heig
     };
   }, [ready, JSON.stringify(center), zoom, single, router]);
 
+  // react to height prop changes without kompletten Neuaufbau
+  useEffect(() => {
+    if (!mapRef.current || !containerRef.current) return;
+    const c = containerRef.current;
+    if (typeof height === 'number') c.style.height = `${height}px`; else if (height === 'full') c.style.height = '100%';
+    try { mapRef.current.invalidateSize(); } catch (_) {}
+  }, [height]);
+
   return <div ref={containerRef} />;
 }

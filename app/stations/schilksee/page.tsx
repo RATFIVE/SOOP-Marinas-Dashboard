@@ -64,12 +64,12 @@ export default function SchilkseePage() {
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'height']) : null;
   // salinity entfernt
+  // Deterministische Dummy-Daten statt Math.random für SSR Hydration Stabilität
   const chartData: Array<Record<string, string | number>> = Array.from({ length: 24 }, (_, i) => ({
     time: `${i}:00`,
-    wind: 8 + Math.random() * 6,
-    temp: 14 + Math.random() * 4,
-    level: 0.2 + Math.random() * 0.4,
-    
+    wind: Number((8 + ((i * 41) % 600) / 100).toFixed(2)),
+    temp: Number((14 + ((i * 59) % 400) / 100).toFixed(2)),
+    level: Number((0.2 + ((i * 31) % 40) / 100).toFixed(3)),
   }));
   const infoRef = useRef<HTMLDivElement | null>(null);
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
@@ -108,17 +108,14 @@ export default function SchilkseePage() {
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2 text-[var(--primary)]">Wind speed</h3>
-              <p className="text-2xl font-bold text-[var(--primary)]">{(8 + Math.random()*6).toFixed(1)} m/s</p>
-            </div>
+            {/* Wind speed Kachel entfernt laut Anforderung */}
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-2 text-[var(--primary)]">Water temperature</h3>
-              <p className="text-2xl font-bold text-[var(--primary)]">{(14 + Math.random()*4).toFixed(1)} °C</p>
+              <p className="text-2xl font-bold text-[var(--primary)]">{tempVal ? `${Number(tempVal.value).toFixed(1)} °C` : (twlLoading ? 'Loading…' : 'n/a')}</p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-2">Water level</h3>
-              <p className="text-2xl font-bold">{(0.2 + Math.random()*0.4).toFixed(2)} m</p>
+              <p className="text-2xl font-bold">{levelVal ? `${Number(levelVal.value).toFixed(2)} m` : (twlLoading ? 'Loading…' : 'n/a')}</p>
             </div>
             
           </div>

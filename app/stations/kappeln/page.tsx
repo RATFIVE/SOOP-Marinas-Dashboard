@@ -106,12 +106,7 @@ export default function KappelnPage() {
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-            {metId && (
-              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Wind speed</h3>
-                <p className="text-2xl font-bold text-[var(--primary)]">{windVal ? `${Number(windVal.value).toFixed(1)} m/s` : (metLoading ? 'Loading…' : 'n/a')}</p>
-              </div>
-            )}
+            {/* Wind speed Kachel entfernt laut Anforderung */}
             {twlId && (
               <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-2">Water temperature</h3>
