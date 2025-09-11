@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useState, useRef, useEffect, useMemo } from "react";
+import { formatDateTime } from '@/lib/utils';
 import useThingObservations, { useThingSeries } from '@/lib/useFrost';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -60,7 +61,7 @@ export default function BadestegReventlouPage() {
   const infoRef = useRef<HTMLDivElement | null>(null);
   // try to load a historical temperature series for the twl thing
   const { loading: seriesLoading, error: seriesError, series } = useThingSeries(twlId || null, ['temp', 'temperature'], 24);
-  const chartData = (series && series.length > 0) ? series.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
+  const chartData = (series && series.length > 0) ? series.map(s => ({ time: formatDateTime(s.time), temp: s.value })) : [];
   const yDomain = useMemo(() => {
     if (!chartData.length) return [0, 1] as [number, number];
     const values = chartData.map(d => typeof d.temp === 'number' ? d.temp : Number(d.temp)).filter(v => !isNaN(v));
