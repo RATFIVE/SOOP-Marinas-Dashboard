@@ -4,6 +4,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import stationData from "@/data/station.json";
 import { useRouter } from "next/navigation";
+import StationCard from "@/components/station-card";
+import { createRoot, Root } from "react-dom/client";
 
 type Props = {
   center?: [number, number];
@@ -93,11 +95,35 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 7, heig
     const stations = ((stationData as any).stations || []).filter((s: any) => s.location?.coordinates?.length >= 2);
     const markers: L.Marker[] = [];
 
+    const popupRoots: Root[] = [];
+
     function addStation(lat: number, lon: number, name: string, info?: string) {
       const marker = L.marker([lat, lon], { icon: stationIcon }).addTo(map);
       markers.push(marker);
-      marker.on("click", () => { try { router.push(`/stations/${slugify(name)}`); } catch (_) {} });
-      marker.bindPopup(`\n        <div class='leaflet-station-popup'>\n          <div class='font-bold mb-1'>${name}</div>\n          <div class='text-xs text-gray-500 dark:text-gray-400'>${lat.toFixed(4)}, ${lon.toFixed(4)}</div>\n          ${info ? `<p class='mt-2 text-sm'>${info}</p>` : ""}\n          <button data-slug='${slugify(name)}' class='mt-3 w-full bg-[var(--primary)] text-white text-xs py-1 px-2'>Details</button>\n        </div>`);
+
+      // React StationCard im Popup rendern, damit Stil identisch zur Kachel ist
+      const el = document.createElement('div');
+      el.className = 'leaflet-station-popup react-station-card';
+      const root = createRoot(el);
+      popupRoots.push(root);
+      const slug = slugify(name);
+      const metrics = [
+        { label: 'Lat', value: lat.toFixed(4) },
+        { label: 'Lon', value: lon.toFixed(4) }
+      ];
+      root.render(
+        <StationCard
+          name={name}
+          lat={lat}
+          lon={lon}
+          online={true}
+          metrics={metrics}
+          lastUpdateISO={new Date().toISOString()}
+          compact
+          onMoreDetails={() => { try { router.push(`/stations/${slug}`); } catch (_) {} }}
+        />
+      );
+      marker.bindPopup(el, { maxWidth: 340, className: 'station-popup-wrapper' });
     }
 
     if (single) {
@@ -117,18 +143,7 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 7, heig
       }
     } catch (_) {}
 
-    // delegate click from popup button
-    map.on("popupopen", (e: any) => {
-      const node = e.popup.getElement();
-      if (!node) return;
-      const btn = node.querySelector("button[data-slug]") as HTMLButtonElement | null;
-      if (btn) {
-        btn.addEventListener("click", () => {
-          const slug = btn.getAttribute("data-slug");
-          if (slug) router.push(`/stations/${slug}`);
-        }, { once: true });
-      }
-    });
+  // Keine Delegation mehr nötig – Button ist Teil der React-Komponente.
 
     return () => {
       markers.forEach(m => { try { m.remove(); } catch (_) {} });
