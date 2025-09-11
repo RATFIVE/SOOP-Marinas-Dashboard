@@ -23,7 +23,7 @@ export default function StationMapCard({ lat, lon, zoom = 15, height = 240, squa
 
   return (
     <div className={wrapperClass}>
-      <div className="w-full rounded-lg h-full" style={innerStyle}>
+      <div className="w-full rounded-lg h-full shadow-lg shadow-black/10 dark:shadow-black/40" style={innerStyle}>
   {/* LeafletMap expects center as [lat, lon] */}
   <LeafletMap center={[lat, lon]} zoom={zoom} height={square ? 'full' : height} single={true} />
       </div>

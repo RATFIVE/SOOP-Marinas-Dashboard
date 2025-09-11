@@ -18,9 +18,9 @@ export default function MapPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col p-0 m-0 w-full h-full">
-            <div className="flex-1 w-full h-full">
-            <LeafletMap height={700} />
+        <div className="flex flex-1 flex-col p-0 m-0 w-full" style={{ height: 'calc(100vh - var(--header-height))' }}>
+          <div className="flex-1 w-full h-full">
+            <LeafletMap height="full" />
           </div>
         </div>
       </SidebarInset>

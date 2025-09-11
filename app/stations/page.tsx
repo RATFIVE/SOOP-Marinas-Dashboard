@@ -39,7 +39,6 @@ interface Station {
   wind: string;
   temp: string;
   water: string;
-  salinity: string;
 }
 
 const rawStations = ((stationData as unknown as { stations?: RawStation[] }).stations || []);
@@ -50,7 +49,7 @@ const stations: Station[] = rawStations.map((s) => ({
   wind: "—",
   temp: "—",
   water: "—",
-  salinity: "—",
+  
 }));
 
 export default function StationsPage() {
@@ -79,7 +78,6 @@ export default function StationsPage() {
                           { label: "Average wind", value: station.wind },
                           { label: "Temperature", value: station.temp },
                           { label: "Water level", value: station.water },
-                          { label: "Salinity", value: station.salinity },
                         ]}
                         lastUpdateISO={new Date().toISOString()}
                         onMoreDetails={() => { try { router.push(`/stations/${station.slug}`); } catch (e) {} }}

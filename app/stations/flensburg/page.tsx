@@ -46,7 +46,7 @@ export default function FlensburgPage() {
   const windVal = metId ? getLatestValue(metObs as unknown as Record<string, Obs>, ['wind', 'wind speed', 'windspeed']) : null;
   const tempVal = twlId ? getLatestValue(twlObs as unknown as Record<string, Obs>, ['temperature', 'water temperature', 'watertemperature', 'waterTemp', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(twlObs as unknown as Record<string, Obs>, ['level', 'water level', 'waterlevel', 'height']) : null;
-  const salVal = twlId ? getLatestValue(twlObs as unknown as Record<string, Obs>, ['salin', 'salinity']) : null;
+  // salinity entfernt
   const [selectedMetric, setSelectedMetric] = useState("wind");
   const [selectedRange, setSelectedRange] = useState("24h");
   const infoRef = useRef<HTMLDivElement | null>(null);
@@ -55,7 +55,7 @@ export default function FlensburgPage() {
   const hours = rangeToHours[selectedRange] || 24;
 
   // fetch historical series for twl and met things (hooks called unconditionally)
-  const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp', 'temperature', 'level', 'salin', 'salinity'], hours);
+  const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp', 'temperature', 'level'], hours);
   const { loading: metSeriesLoading, error: metSeriesError, series: metSeries } = useThingSeries(metId || null, ['wind', 'wind speed', 'windspeed'], hours);
 
   // build chartData depending on selectedMetric
@@ -66,8 +66,6 @@ export default function FlensburgPage() {
     chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
   } else if (selectedMetric === 'level') {
     chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleString([], { hour: '2-digit', minute: '2-digit' }), level: s.value })) : [];
-  } else if (selectedMetric === 'salinity') {
-    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleString([], { hour: '2-digit', minute: '2-digit' }), salinity: s.value })) : [];
   }
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   useEffect(() => {
@@ -131,12 +129,7 @@ export default function FlensburgPage() {
                 <p className="text-2xl font-bold text-[var(--primary)]">{levelVal ? `${Number(levelVal.value).toFixed(2)} m` : (twlLoading ? 'Loading…' : 'n/a')}</p>
               </div>
             )}
-            {twlId && (
-              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Salinity</h3>
-                <p className="text-2xl font-bold text-[var(--primary)]">{salVal ? `${Number(salVal.value).toFixed(1)} PSU` : (twlLoading ? 'Loading…' : 'n/a')}</p>
-              </div>
-            )}
+            
           </div>
           {/* Area Chart Kachel */}
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
@@ -163,7 +156,7 @@ export default function FlensburgPage() {
                     <option value="wind">Wind speed</option>
                     <option value="temp">Water temperature</option>
                     <option value="level">Water level</option>
-                  <option value="salinity">Salinity</option>
+                  
                 </select>
               </div>
             </div>

@@ -63,13 +63,13 @@ export default function SchilkseePage() {
   const windVal = metId ? getLatestValue(adaptObsMap(metObs), ['wind', 'windspeed']) : null;
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'height']) : null;
-  const salVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['salin', 'salinity']) : null;
+  // salinity entfernt
   const chartData: Array<Record<string, string | number>> = Array.from({ length: 24 }, (_, i) => ({
     time: `${i}:00`,
     wind: 8 + Math.random() * 6,
     temp: 14 + Math.random() * 4,
     level: 0.2 + Math.random() * 0.4,
-    salinity: 13 + Math.random() * 2,
+    
   }));
   const infoRef = useRef<HTMLDivElement | null>(null);
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
@@ -120,10 +120,7 @@ export default function SchilkseePage() {
                 <h3 className="text-lg font-semibold mb-2">Water level</h3>
               <p className="text-2xl font-bold">{(0.2 + Math.random()*0.4).toFixed(2)} m</p>
             </div>
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-              <h3 className="text-lg font-semibold mb-2">Salinity</h3>
-              <p className="text-2xl font-bold">{(13 + Math.random()*2).toFixed(1)} PSU</p>
-            </div>
+            
           </div>
           {/* Area Chart Kachel */}
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
@@ -150,7 +147,7 @@ export default function SchilkseePage() {
                     <option value="wind">Wind speed</option>
                     <option value="temp">Water temperature</option>
                     <option value="level">Water level</option>
-                  <option value="salinity">Salinity</option>
+                  
                 </select>
               </div>
             </div>

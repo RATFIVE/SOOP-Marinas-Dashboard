@@ -62,11 +62,11 @@ export default function MarinaHeiligenhafenPage() {
   const windVal = metId ? getLatestValue(adaptObsMap(metObs), ['wind', 'windspeed']) : null;
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'height']) : null;
-  const salVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['salin', 'salinity']) : null;
+  // salinity entfernt
   const infoRef = useRef<HTMLDivElement | null>(null);
   const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
   const hours = rangeToHours[selectedRange] || 24;
-  const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp', 'temperature', 'level', 'salin', 'salinity'], hours);
+  const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp', 'temperature', 'level'], hours);
   const { loading: metSeriesLoading, error: metSeriesError, series: metSeries } = useThingSeries(metId || null, ['wind', 'wind speed', 'windspeed'], hours);
 
   let chartData: Array<Record<string, string | number>> = [];
@@ -76,8 +76,6 @@ export default function MarinaHeiligenhafenPage() {
     chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
   } else if (selectedMetric === 'level') {
     chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), level: s.value })) : [];
-  } else if (selectedMetric === 'salinity') {
-    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), salinity: s.value })) : [];
   }
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   useEffect(() => { const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); }; update(); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update); }, []);
@@ -119,10 +117,7 @@ export default function MarinaHeiligenhafenPage() {
                 <h3 className="text-lg font-semibold mb-2">Water level</h3>
               <p className="text-2xl font-bold">{(0.2 + Math.random()*0.4).toFixed(2)} m</p>
             </div>
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Salinity</h3>
-              <p className="text-2xl font-bold">{(13 + Math.random()*2).toFixed(1)} PSU</p>
-            </div>
+            
           </div>
           {/* Area Chart Kachel */}
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
@@ -149,7 +144,7 @@ export default function MarinaHeiligenhafenPage() {
                     <option value="wind">Wind speed</option>
                     <option value="temp">Water temperature</option>
                     <option value="level">Water level</option>
-                  <option value="salinity">Salinity</option>
+                  
                 </select>
               </div>
             </div>

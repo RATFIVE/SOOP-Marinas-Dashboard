@@ -65,7 +65,7 @@ export default function MarinaLuebeckTheNewportPage() {
   const windVal = metId ? getLatestValue(adaptObsMap(metObs), ['wind', 'wind speed', 'windspeed']) : null;
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'water temperature', 'watertemperature', 'waterTemp', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'water level', 'waterlevel', 'height']) : null;
-  const salVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['salin', 'salinity']) : null;
+  // salinity entfernt
   const [selectedMetric, setSelectedMetric] = useState("wind");
   const [selectedRange, setSelectedRange] = useState("24h");
   const infoRef = useRef<HTMLDivElement | null>(null);
@@ -74,7 +74,7 @@ export default function MarinaLuebeckTheNewportPage() {
     wind: 8 + Math.random() * 6,
     temp: 14 + Math.random() * 4,
     level: 0.2 + Math.random() * 0.4,
-    salinity: 13 + Math.random() * 2,
+    
   }));
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   useEffect(() => {
@@ -125,12 +125,7 @@ export default function MarinaLuebeckTheNewportPage() {
                 <p className="text-2xl font-bold text-[var(--primary)]">{levelVal ? `${Number(levelVal.value).toFixed(2)} m` : (twlLoading ? 'Loading…' : 'n/a')}</p>
               </div>
             )}
-            {twlId && (
-              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Salinity</h3>
-                <p className="text-2xl font-bold text-[var(--primary)]">{salVal ? `${Number(salVal.value).toFixed(1)} PSU` : (twlLoading ? 'Loading…' : 'n/a')}</p>
-              </div>
-            )}
+            
           </div>
           {/* Area Chart Kachel */}
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
@@ -157,7 +152,7 @@ export default function MarinaLuebeckTheNewportPage() {
                     <option value="wind">Wind speed</option>
                     <option value="temp">Water temperature</option>
                     <option value="level">Water level</option>
-                  <option value="salinity">Salinity</option>
+                  
                 </select>
               </div>
             </div>
