@@ -59,8 +59,10 @@ export default function BadestegReventlouPage() {
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'water temperature', 'watertemperature', 'waterTemp', 'temp']) : null;
   const [selectedRange, setSelectedRange] = useState("24h");
   const infoRef = useRef<HTMLDivElement | null>(null);
-  // try to load a historical temperature series for the twl thing
-  const { loading: seriesLoading, error: seriesError, series } = useThingSeries(twlId || null, ['temp', 'temperature'], 24);
+  // Map ausgewählte Range in Stunden & lade Zeitreihe dynamisch vom FROST Server
+  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
+  const hours = rangeToHours[selectedRange] || 24;
+  const { loading: seriesLoading, error: seriesError, series } = useThingSeries(twlId || null, ['temp', 'temperature'], hours);
   const chartData = (series && series.length > 0) ? series.map(s => ({ time: formatDateTime(s.time), temp: s.value })) : [];
   const yDomain = useMemo(() => {
     if (!chartData.length) return [0, 1] as [number, number];
