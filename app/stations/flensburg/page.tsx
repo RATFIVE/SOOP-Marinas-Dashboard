@@ -6,7 +6,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { formatDateTime } from '@/lib/utils';
 import useThingObservations, { useThingSeries } from '@/lib/useFrost';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import RotatedDateTick from '@/components/chart-axis-tick';
 import { Skeleton } from '@/components/ui/skeleton';
 import StationMapCard from '@/components/station-map-card';
 
@@ -174,7 +175,8 @@ export default function FlensburgPage() {
                     </div>
                   ) : (
                     <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                      <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                      <CartesianGrid vertical horizontal={false} stroke="currentColor" strokeOpacity={0.15} strokeDasharray="2 2" />
+                      <XAxis dataKey="time" tickLine={false} height={70} interval="preserveStartEnd" tick={<RotatedDateTick angle={-30} offsetY={24} />} />
                       <YAxis domain={yDomain as any} tick={{ fontSize: 12 }} tickFormatter={(v) => {
                         if (selectedMetric === 'temp') return `${Number(v).toFixed(1)} °C`;
                         if (selectedMetric === 'level') return `${Number(v).toFixed(2)} m`;
