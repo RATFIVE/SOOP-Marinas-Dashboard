@@ -20,18 +20,16 @@ function slugify(name: string) {
     .replace(/^-|-$/g, '');
 }
 
-export default function MarinaLuebeckTheNewportPage() {
+// Neue offizielle Seite (neuer Slug). Alte Seite 'marina-luebeck-the-newport' bleibt als Legacy.
+export default function TheNewportMarinaLuebeckPage() {
   const stationRaw = stations.find((s) => {
     const sl = slugify(s.name);
-    return sl === 'marina-luebeck-the-newport' || sl === 'the-newport-marina-lubeck' || sl === 'the-newport-marina-luebeck';
+    return sl === 'the-newport-marina-luebeck' || sl === 'the-newport-marina-lubeck' || sl === 'marina-luebeck-the-newport';
   }) || stations[0];
   const twlId = stationRaw['twlbox-id'] || '';
   const metId = stationRaw['metbox-id'] || '';
-
-  // expose as `station` for the JSX below
   const station = stationRaw;
 
-  // request observations for available things
   const { loading: twlLoading, error: twlError, observations: twlObs } = useThingObservations(twlId || null);
   const { loading: metLoading, error: metError, observations: metObs } = useThingObservations(metId || null);
 
@@ -42,11 +40,11 @@ export default function MarinaLuebeckTheNewportPage() {
       const low = k.toLowerCase();
       if (preferKeywords.some(pk => low.includes(pk))) {
         const o = obsMap[k];
-        if (o && o.result != null) return { value: o.result, time: o.phenomenonTime || o['phenomenonTime'] };
+        if (o && o.result != null) return { value: o.result, time: o.phenomenonTime || (o as any)['phenomenonTime'] };
       }
     }
     for (const k of Object.keys(obsMap)) {
-      const o = obsMap[k]; if (o && o.result != null) return { value: o.result, time: o.phenomenonTime || o['phenomenonTime'] };
+      const o = obsMap[k]; if (o && o.result != null) return { value: o.result, time: o.phenomenonTime || (o as any)['phenomenonTime'] };
     }
     return null;
   };
@@ -68,7 +66,6 @@ export default function MarinaLuebeckTheNewportPage() {
   const windVal = metId ? getLatestValue(adaptObsMap(metObs), ['wind', 'wind speed', 'windspeed']) : null;
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'water temperature', 'watertemperature', 'waterTemp', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'water level', 'waterlevel', 'height']) : null;
-  // salinity entfernt
   const [selectedMetric, setSelectedMetric] = useState("wind");
   const [selectedRange, setSelectedRange] = useState("24h");
   const infoRef = useRef<HTMLDivElement | null>(null);
@@ -77,7 +74,6 @@ export default function MarinaLuebeckTheNewportPage() {
     wind: 8 + Math.random() * 6,
     temp: 14 + Math.random() * 4,
     level: 0.2 + Math.random() * 0.4,
-    
   }));
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   useEffect(() => {
@@ -128,34 +124,31 @@ export default function MarinaLuebeckTheNewportPage() {
                 <p className="text-2xl font-bold text-[var(--primary)]">{levelVal ? `${Number(levelVal.value).toFixed(2)} m` : (twlLoading ? 'Loading…' : 'n/a')}</p>
               </div>
             )}
-            
           </div>
-          {/* Area Chart Kachel */}
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <div className="flex gap-2">
-                  <label className="font-semibold">Time range:</label>
+                <label className="font-semibold">Time range:</label>
                 <select
                   className="border rounded px-2 py-1 dark:bg-zinc-800"
                   value={selectedRange}
                   onChange={e => setSelectedRange(e.target.value)}
                 >
-                    <option value="24h">Last 24h</option>
-                    <option value="7d">Last 7 days</option>
-                    <option value="30d">Last 30 days</option>
+                  <option value="24h">Last 24h</option>
+                  <option value="7d">Last 7 days</option>
+                  <option value="30d">Last 30 days</option>
                 </select>
               </div>
               <div className="flex gap-2">
-                  <label className="font-semibold">Metric:</label>
+                <label className="font-semibold">Metric:</label>
                 <select
                   className="border rounded px-2 py-1 dark:bg-zinc-800"
                   value={selectedMetric}
                   onChange={e => setSelectedMetric(e.target.value)}
                 >
-                    <option value="wind">Wind speed</option>
-                    <option value="temp">Water temperature</option>
-                    <option value="level">Water level</option>
-                  
+                  <option value="wind">Wind speed</option>
+                  <option value="temp">Water temperature</option>
+                  <option value="level">Water level</option>
                 </select>
               </div>
             </div>

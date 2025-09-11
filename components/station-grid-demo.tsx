@@ -14,7 +14,6 @@ const stations = [
       { label: "Average wind", value: "8.6 m/s" },
       { label: "Temperature", value: "15.2°C" },
       { label: "Water level", value: "+13 cm" },
-      { label: "Salinity", value: "32 PSU" },
     ],
     lastUpdateISO: "2025-05-14T06:14:11.000Z",
   },
@@ -27,7 +26,6 @@ const stations = [
       { label: "Average wind", value: "5.1 m/s" },
       { label: "Temperature", value: "12.3°C" },
       { label: "Water level", value: "+8 cm" },
-      { label: "Salinity", value: "30 PSU" },
     ],
     lastUpdateISO: "2025-06-01T10:00:00.000Z",
   },
@@ -40,7 +38,6 @@ const stations = [
       { label: "Average wind", value: "7.4 m/s" },
       { label: "Temperature", value: "14.8°C" },
       { label: "Water level", value: "+10 cm" },
-      { label: "Salinity", value: "31 PSU" },
     ],
     lastUpdateISO: "2025-05-30T08:30:00.000Z",
   },
@@ -53,7 +50,6 @@ const stations = [
       { label: "Average wind", value: "6.3 m/s" },
       { label: "Temperature", value: "13.9°C" },
       { label: "Water level", value: "+9 cm" },
-      { label: "Salinity", value: "29 PSU" },
     ],
     lastUpdateISO: "2025-07-02T12:45:00.000Z",
   },
@@ -66,7 +62,6 @@ const stations = [
       { label: "Average wind", value: "4.8 m/s" },
       { label: "Temperature", value: "11.6°C" },
       { label: "Water level", value: "+6 cm" },
-      { label: "Salinity", value: "28 PSU" },
     ],
     lastUpdateISO: "2025-04-12T09:20:00.000Z",
   },
@@ -85,7 +80,7 @@ export default function StationGridDemo() {
           online={s.online}
           metrics={s.metrics}
           lastUpdateISO={s.lastUpdateISO}
-          onMoreDetails={() => { const slug = s.name === 'Marina Lübeck "The Newport"' ? 'marina-luebeck-the-newport' : s.name.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, ''); try { router.push(`/stations/${slug}`); } catch (e) { /* ignore */ } }}
+          onMoreDetails={() => { const base = s.name.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, ''); const slug = (s.name === 'Marina Lübeck "The Newport"' || s.name === 'The Newport Marina, Lübeck') ? 'the-newport-marina-luebeck' : base; try { router.push(`/stations/${slug}`); } catch (e) { /* ignore */ } }}
         />
       ))}
     </div>

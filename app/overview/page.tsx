@@ -116,7 +116,7 @@ export default function OverviewPage() {
                               { label: 'Average wind', value: '—' },
                               { label: 'Temperature', value: '—' },
                               { label: 'Water level', value: '—' },
-                              { label: 'Salinity', value: '—' },
+                              
                             ]}
                             lastUpdateISO={new Date().toISOString()}
                             onMoreDetails={() => { try { router.push(`/stations/${slugify(s.name || '')}`) } catch (e) {} }}

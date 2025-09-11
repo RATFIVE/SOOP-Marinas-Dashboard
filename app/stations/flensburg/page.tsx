@@ -173,14 +173,14 @@ export default function FlensburgPage() {
                         if (selectedMetric === 'temp') return `${Number(v).toFixed(1)} °C`;
                         if (selectedMetric === 'level') return `${Number(v).toFixed(2)} m`;
                         if (selectedMetric === 'wind') return `${Number(v).toFixed(1)} m/s`;
-                        if (selectedMetric === 'salinity') return `${Number(v).toFixed(1)} PSU`;
+                        
                         return v;
                       }} />
                       <Tooltip formatter={(value: number | string) => {
                         if (selectedMetric === 'temp') return [`${Number(value).toFixed(1)} °C`, 'Temperature'];
                         if (selectedMetric === 'level') return [`${Number(value).toFixed(2)} m`, 'Level'];
                         if (selectedMetric === 'wind') return [`${Number(value).toFixed(1)} m/s`, 'Wind'];
-                        if (selectedMetric === 'salinity') return [`${Number(value).toFixed(1)} PSU`, 'Salinity'];
+                        
                         return [value, ''];
                       }} labelFormatter={(l) => l} />
                       <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />

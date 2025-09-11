@@ -67,14 +67,14 @@ export default function KielHarbourPage() {
   const windVal = metId ? getLatestValue(adaptObsMap(metObs), ['wind', 'windspeed']) : null;
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'height']) : null;
-  const salVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['salin', 'salinity']) : null;
+  // salinity entfernt
 
   // determine hours for selectedRange
   const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
   const hours = rangeToHours[selectedRange] || 24;
 
   // fetch series for twl and met things (hooks must be called unconditionally)
-  const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp', 'temperature', 'level', 'salin', 'salinity'], hours);
+  const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp', 'temperature', 'level'], hours);
   const { loading: metSeriesLoading, error: metSeriesError, series: metSeries } = useThingSeries(metId || null, ['wind', 'wind speed', 'windspeed'], hours);
 
   // map series to chartData expected by Recharts depending on selectedMetric
@@ -85,8 +85,6 @@ export default function KielHarbourPage() {
     chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), temp: s.value })) : [];
   } else if (selectedMetric === 'level') {
     chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), level: s.value })) : [];
-  } else if (selectedMetric === 'salinity') {
-    chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), salinity: s.value })) : [];
   }
 
   // if we don't have series yet, set chartData empty so chart shows loading
@@ -136,12 +134,7 @@ export default function KielHarbourPage() {
                 <p className="text-2xl font-bold text-[var(--primary)]">{levelVal ? `${Number(levelVal.value).toFixed(2)} m` : (twlLoading ? 'Loading…' : 'n/a')}</p>
               </div>
             )}
-            {twlId && (
-              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Salinity</h3>
-                <p className="text-2xl font-bold text-[var(--primary)]">{salVal ? `${Number(salVal.value).toFixed(1)} PSU` : (twlLoading ? 'Loading…' : 'n/a')}</p>
-              </div>
-            )}
+            
           </div>
           {/* Area Chart Kachel */}
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
@@ -168,7 +161,7 @@ export default function KielHarbourPage() {
                   <option value="wind">Wind speed</option>
                   <option value="temp">Water temperature</option>
                   <option value="level">Water level</option>
-                  <option value="salinity">Salinity</option>
+                  
                 </select>
               </div>
             </div>
@@ -185,14 +178,14 @@ export default function KielHarbourPage() {
                       if (selectedMetric === 'temp') return `${Number(v).toFixed(1)} °C`;
                       if (selectedMetric === 'level') return `${Number(v).toFixed(2)} m`;
                       if (selectedMetric === 'wind') return `${Number(v).toFixed(1)} m/s`;
-                      if (selectedMetric === 'salinity') return `${Number(v).toFixed(1)} PSU`;
+                      
                       return v;
                     }} />
                     <Tooltip formatter={(value: number | string) => {
                       if (selectedMetric === 'temp') return [`${Number(value).toFixed(1)} °C`, 'Temperature'];
                       if (selectedMetric === 'level') return [`${Number(value).toFixed(2)} m`, 'Level'];
                       if (selectedMetric === 'wind') return [`${Number(value).toFixed(1)} m/s`, 'Wind'];
-                      if (selectedMetric === 'salinity') return [`${Number(value).toFixed(1)} PSU`, 'Salinity'];
+                      
                       return [value, ''];
                     }} labelFormatter={(l) => l} />
                     <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
