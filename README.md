@@ -1,6 +1,6 @@
 # Dashboard — Lokale Entwicklungsanleitung
 
-Kurz: Dieses Repository ist eine Next.js (App‑Directory) Demo mit Mapbox‑Karte, Recharts‑AreaCharts und Tailwind‑Styling.
+Kurz: Dieses Repository ist eine Next.js (App‑Directory) Demo mit Leaflet (OpenStreetMap) Karte, Recharts‑AreaCharts und Tailwind‑Styling.
 
 ## Voraussetzungen
 

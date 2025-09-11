@@ -6,15 +6,13 @@ Steps:
 1. Add the repository to Netlify.
 2. Set build command: `pnpm build` and publish directory: handled by the plugin (keep `publish = ".next"` in `netlify.toml`).
    - Note: The repo currently defaults `ESLINT_IGNORE_DURING_BUILD=true` to avoid failing builds while lint issues are fixed. Set `ESLINT_IGNORE_DURING_BUILD=false` in Netlify if you want builds to run ESLint.
-3. In Netlify site settings > Environment, add:
-   - `NEXT_PUBLIC_MAPBOX_TOKEN` = your Mapbox public token
-   - optionally `NEXT_PUBLIC_MAPBOX_STYLE_DAY` and `NEXT_PUBLIC_MAPBOX_STYLE_NIGHT`
+3. (Kein Mapbox Token mehr nötig – Leaflet + OpenStreetMap Tiles werden verwendet.)
    - Optional: set `ESLINT_IGNORE_DURING_BUILD=false` to re-enable linting in CI once fixes are applied.
 4. Ensure the `netlify.toml` in repo includes the plugin (already added).
 
 Notes:
+- We removed Mapbox; no public token secrets required for the base map (OSM tiles). Consider using a tile proxy or a provider with API key for production usage / higher traffic.
 - We removed `output: 'export'` from `next.config.ts` to allow SSR/edge features via the Netlify plugin.
-- Do not commit secret tokens to the repo. Use Netlify environment variables.
 - If you prefer a static export, revert `next.config.ts` and use `pnpm run export` instead.
 
 BasePath note:

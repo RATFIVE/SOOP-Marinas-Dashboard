@@ -2,6 +2,7 @@
 
 import React from "react";
 import StationCard from "./station-card";
+import { useRouter } from 'next/navigation';
 
 const stations = [
   {
@@ -72,6 +73,7 @@ const stations = [
 ];
 
 export default function StationGridDemo() {
+  const router = useRouter();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {stations.map((s) => (
@@ -83,7 +85,7 @@ export default function StationGridDemo() {
           online={s.online}
           metrics={s.metrics}
           lastUpdateISO={s.lastUpdateISO}
-          onMoreDetails={() => { const slug = s.name === 'Marina Lübeck "The Newport"' ? 'marina-luebeck-the-newport' : s.name.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, ''); window.location.hash = `#/station/${slug}` }}
+          onMoreDetails={() => { const slug = s.name === 'Marina Lübeck "The Newport"' ? 'marina-luebeck-the-newport' : s.name.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, ''); try { router.push(`/stations/${slug}`); } catch (e) { /* ignore */ } }}
         />
       ))}
     </div>

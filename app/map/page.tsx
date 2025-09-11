@@ -10,7 +10,7 @@ const sidebarStyle: CSSProperties & Record<string, string> = {
 } as unknown as CSSProperties & Record<string, string>;
 import dynamic from "next/dynamic";
 
-const MapboxMap = dynamic(() => import("@/components/mapbox-map"), { ssr: false });
+const LeafletMap = dynamic(() => import("@/components/leaflet-map"), { ssr: false });
 
 export default function MapPage() {
   return (
@@ -20,7 +20,7 @@ export default function MapPage() {
         <SiteHeader />
         <div className="flex flex-1 flex-col p-0 m-0 w-full h-full">
             <div className="flex-1 w-full h-full">
-            <MapboxMap height={typeof window !== "undefined" ? window.innerHeight - 64 : 700} />
+            <LeafletMap height={700} />
           </div>
         </div>
       </SidebarInset>

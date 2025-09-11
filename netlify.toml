@@ -11,15 +11,8 @@
   NEXT_TELEMETRY_DISABLED = "1"
   # Allow overriding eslint-ignore during build from Netlify UI if you want to re-enable linting
   ESLINT_IGNORE_DURING_BUILD = "true"
-  # If your public Mapbox token is intentionally present in build output (public client token),
-  # you can omit it from Netlify's secrets scanner. Only do this for truly public tokens.
-  # See: https://docs.netlify.com/monitor-sites/security/secrets-scanning/
-  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_MAPBOX_TOKEN"
+
 
 [context.production.environment]
-  # Add these on Netlify UI or here for local testing (do NOT commit secrets in real projects)
-  # NEXT_PUBLIC_MAPBOX_TOKEN = "your_mapbox_token_here"
-  # NEXT_PUBLIC_MAPBOX_STYLE_DAY = "mapbox://styles/your/style"
-  # NEXT_PUBLIC_MAPBOX_STYLE_NIGHT = "mapbox://styles/your/style"
   # If you want Netlify to run ESLint during build, set ESLINT_IGNORE_DURING_BUILD = "false"
 

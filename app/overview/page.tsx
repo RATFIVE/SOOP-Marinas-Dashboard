@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import stationData from '@/data/station.json';
 type RawStation = { name: string; location?: { coordinates?: number[] } };
 import StationCard from "@/components/station-card";
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 function toRad(v: number) { return v * Math.PI / 180; }
@@ -32,9 +33,10 @@ function slugify(name: string) {
     .replace(/^-|-$/g, '');
 }
 
-const MapboxMap = dynamic(() => import("@/components/mapbox-map"), { ssr: false });
+const LeafletMap = dynamic(() => import("@/components/leaflet-map"), { ssr: false });
 
 export default function OverviewPage() {
+  const router = useRouter();
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [nearest, setNearest] = useState<null | { station: RawStation; dist: number | null }>(null);
 
@@ -94,7 +96,7 @@ export default function OverviewPage() {
                 <h1 className="text-2xl font-bold mb-6 text-[var(--primary)]">Overview</h1>
                 <div className="bg-white dark:bg-zinc-900 rounded-lg shadow mb-6 overflow-hidden" style={{ height: 500 }}>
                   <div className="w-full h-full">
-                    <MapboxMap />
+                    <LeafletMap />
                   </div>
                 </div>
                 <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
@@ -117,7 +119,7 @@ export default function OverviewPage() {
                               { label: 'Salinity', value: '—' },
                             ]}
                             lastUpdateISO={new Date().toISOString()}
-                            onMoreDetails={() => { window.location.href = `/stations/${slugify(s.name || '')}` }}
+                            onMoreDetails={() => { try { router.push(`/stations/${slugify(s.name || '')}`) } catch (e) {} }}
                           />
                         );
                       })()

@@ -19,6 +19,7 @@ type RawStation = {
   info?: string;
 };
 import StationCard from "@/components/station-card";
+import { useRouter } from 'next/navigation';
 
 function slugify(name: string) {
   return name
@@ -53,6 +54,7 @@ const stations: Station[] = rawStations.map((s) => ({
 }));
 
 export default function StationsPage() {
+  const router = useRouter();
   return (
   <SidebarProvider style={sidebarStyle}>
       <AppSidebar variant="inset" />
@@ -80,7 +82,7 @@ export default function StationsPage() {
                           { label: "Salinity", value: station.salinity },
                         ]}
                         lastUpdateISO={new Date().toISOString()}
-                        onMoreDetails={() => { window.location.href = `/stations/${station.slug}` }}
+                        onMoreDetails={() => { try { router.push(`/stations/${station.slug}`); } catch (e) {} }}
                       />
                     );
                   })}

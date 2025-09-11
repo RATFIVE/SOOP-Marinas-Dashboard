@@ -8,7 +8,6 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import { getSidebarStyle } from '@/lib/ui';
 import useThingObservations from '@/lib/useFrost';
 import StationMapCard from '@/components/station-map-card';
-import useThingObservations from '@/lib/useFrost';
 
 function slugify(name: string) {
   return name

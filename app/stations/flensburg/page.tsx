@@ -76,8 +76,11 @@ export default function FlensburgPage() {
       if (h && h > 0) setInfoHeight(Math.round(h));
     };
     update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', update);
+      return () => window.removeEventListener('resize', update);
+    }
+    return () => {};
   }, []);
 
   const sidebarStyle: React.CSSProperties & Record<string, string> = {
