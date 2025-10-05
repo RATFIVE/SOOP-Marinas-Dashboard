@@ -1,41 +1,44 @@
-# Dashboard — Lokale Entwicklungsanleitung
+# SOOP Marinas Dashboard
 
-Kurz: Dieses Repository ist eine Next.js (App‑Directory) Demo mit Leaflet (OpenStreetMap) Karte, Recharts‑AreaCharts und Tailwind‑Styling.
+Eine Next.js Dashboard-Anwendung zur Überwachung von Marina-Sensordaten mit interaktiven Charts und Karten.
 
-## Voraussetzungen
+## Features
 
-## Repository klonen
+- Echtzeit-Sensordatenvisualisierung
+- Interaktive Karten mit Leaflet
+- Dynamische Zeitbereichsauswahl (24h, 7d, 30d)
+- Responsive Design mit Dark/Light Mode
+- Mehrere Marina-Stationen mit individuellen Metriken
 
-Ersetze `<REPO_URL>` durch die URL des GitHub‑Repos (z. B. `git@github.com:owner/repo.git`):
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS
+- **Charts**: Recharts
+- **Maps**: Leaflet mit OpenStreetMap
+- **UI Components**: Radix UI
+- **Package Manager**: pnpm
+
+## Entwicklung
+
+### Repository klonen
 
 ```bash
- git clone <REPO_URL>
- cd SOOP-Marinas-Dashboard
+git clone <REPO_URL>
+cd SOOP-Marinas-Dashboard
 ```
 
-## Installieren
+### Installieren
 
-Prüfe, ob `pnpm-lock.yaml` vorhanden ist. Wenn ja, verwende `pnpm`; sonst kannst du `npm` verwenden.
-
-pnpm (empfohlen):
 ```bash
+# pnpm (empfohlen)
 pnpm install
-```
 
-npm:
-```bash
+# oder npm
 npm install
 ```
 
-Falls du `nvm` benutzt und Node nicht installiert ist:
-```bash
-nvm install --lts
-nvm use --lts
-```
-
-## Dev Server starten
-
-Standard (Port 3000):
+### Development Server
 
 ```bash
 # pnpm
@@ -47,14 +50,94 @@ npm run dev
 
 Im Browser: http://localhost:3000
 
-Wenn der Port belegt ist, kannst du einen anderen Port setzen:
+## Deployment auf Vercel
+
+Dieses Projekt ist für Vercel-Deployment optimiert:
+
+### Automatisches Deployment
+
+1. **Repository verbinden**: Verbinde dein GitHub-Repository mit Vercel
+2. **Auto-Deploy**: Vercel erkennt automatisch das Next.js-Framework
+3. **Konfiguration**: Die `vercel.json` enthält:
+   - Build-Befehl: `pnpm build`
+   - Node.js Version: 18
+   - Environment-Variablen
+   - Function-Timeouts und Routing
+
+### Manuelles Deployment
+
 ```bash
-PORT=3001 npm run dev
+# Vercel CLI installieren
+npm i -g vercel
+
+# Deployment vom Projektroot
+vercel
+
+# Für Production-Deployment
+vercel --prod
 ```
 
-## Wichtige Hinweise zum Projekt
+### Environment-Variablen
 
-## Geolocation / Nearest Station testen
+Falls nötig in Vercel Dashboard setzen:
+- `ESLINT_IGNORE_DURING_BUILD=false` um Linting in CI zu aktivieren
+- `NEXT_TELEMETRY_DISABLED=1` (bereits konfiguriert)
+
+```bash
+# Development
+pnpm dev          # Startet Dev-Server auf localhost:3000
+pnpm build        # Erstellt Production-Build
+pnpm start        # Startet Production-Server
+pnpm lint         # Führt ESLint aus
+```
+
+## Projekt-Struktur
+
+```
+app/
+├── stations/           # Einzelne Marina-Stationsseiten
+├── dashboard/          # Haupt-Dashboard
+├── map/               # Karten-Übersicht
+└── layout.tsx         # Root-Layout
+
+components/
+├── ui/                # Wiederverwendbare UI-Komponenten
+├── charts/            # Chart-Komponenten
+└── maps/              # Karten-Komponenten
+
+lib/
+├── utils.ts           # Utility-Funktionen
+├── station.ts         # Stations-Datenverwaltung
+└── useFrost.ts        # Data-Fetching Hooks
+```
+
+## Datenquellen
+
+- **FROST Server**: Echtzeit-Sensorbeobachtungen
+- **Time Series**: Historische Daten mit konfigurierbaren Bereichen
+- **Metriken**: Wind, Wassertemperatur, Wasserpegel
+
+## Technische Details
+
+### Karten
+- **Leaflet** statt Mapbox für OpenStreetMap-Integration
+- **SSR-kompatibel** mit dynamischen Importen
+- **Responsive** Karten mit Touch-Support
+
+### Charts
+- **Recharts** für AreaChart-Visualisierungen
+- **Dynamische Y-Achsen** mit automatischer Skalierung
+- **Rotierte X-Achsen-Labels** für bessere Lesbarkeit
+- **Vertikale Grid-Linien** bei jedem Zeitstempel
+
+### Deployment-Konfiguration
+- **basePath**: Leer (Projekt läuft im Root `/`)
+- **SSR/Edge Functions**: Vollständig unterstützt
+- **Images**: Unoptimized für statische Kompatibilität
+
+## Lizenz
+
+Dieses Projekt ist privat und proprietär.
 
 ## Troubleshooting
 ```bash

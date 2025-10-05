@@ -1,8 +1,8 @@
 const isProd = process.env.NODE_ENV === 'production';
 
 // Keep basePath for production builds, but do not force static export here.
-// Netlify will use the Next plugin for proper SSR/Edge support.
-// Make ignoring ESLint during build configurable via env so CI/Netlify can keep
+// Vercel has native Next.js support with proper SSR/Edge features.
+// Make ignoring ESLint during build configurable via env so CI/Vercel can keep
 // the temporary bypass while local dev will surface lint errors by default.
 const eslintIgnoreEnv = process.env.ESLINT_IGNORE_DURING_BUILD;
 const ignoreDuringBuilds = eslintIgnoreEnv
@@ -13,7 +13,7 @@ const ignoreDuringBuilds = eslintIgnoreEnv
 const isStaticExport = process.env.NEXT_STATIC_EXPORT === 'true';
 
 const nextConfig = {
-  basePath: isProd ? '/soop-marinas-dashboard' : '',
+  basePath: '', // No basePath - serve at root
   images: { unoptimized: true },
   eslint: {
     ignoreDuringBuilds: ignoreDuringBuilds,

@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "pnpm build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "env": {
+    "NODE_VERSION": "18",
+    "NEXT_TELEMETRY_DISABLED": "1",
+    "ESLINT_IGNORE_DURING_BUILD": "true"
+  },
+  "functions": {
+    "app/**": {
+      "maxDuration": 30
+    }
+  }
+}
