@@ -9,6 +9,7 @@ import useThingObservations, { useThingSeries } from '@/lib/useFrost';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import RotatedDateTick from '@/components/chart-axis-tick';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import StationMapCard from '@/components/station-map-card';
 
 function slugify(name: string) {
@@ -121,17 +122,13 @@ export default function BadestegReventlouPage() {
           {/* Area Chart Kachel */}
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
             <div className="flex items-center justify-between gap-4 mb-4">
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-3">
                 <label className="font-semibold">Time range:</label>
-                <select
-                  className="border rounded px-2 py-1 dark:bg-zinc-800"
-                  value={selectedRange}
-                  onChange={e => setSelectedRange(e.target.value)}
-                >
-                  <option value="24h">Last 24h</option>
-                  <option value="7d">Last 7 days</option>
-                  <option value="30d">Last 30 days</option>
-                </select>
+                <ToggleGroup type="single" value={selectedRange} onValueChange={(value) => value && setSelectedRange(value)}>
+                  <ToggleGroupItem value="24h">24h</ToggleGroupItem>
+                  <ToggleGroupItem value="7d">7d</ToggleGroupItem>
+                  <ToggleGroupItem value="30d">30d</ToggleGroupItem>
+                </ToggleGroup>
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">Metric: Water temperature</div>
             </div>
