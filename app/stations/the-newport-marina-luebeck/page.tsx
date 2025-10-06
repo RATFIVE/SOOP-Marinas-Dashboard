@@ -11,6 +11,9 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import RotatedDateTick from '@/components/chart-axis-tick';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import StationMapCard from '@/components/station-map-card';
+import WindSpeedCard from '@/components/ui/WindSpeedCard';
+import { CalendarRange } from '@/components/ui/calendar-range';
+import { StationChart } from '@/components/ui/station-chart';
 
 function slugify(name: string) {
   return name
@@ -72,10 +75,26 @@ export default function TheNewportMarinaLuebeckPage() {
   const levelVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['level', 'water level', 'waterlevel', 'height']) : null;
   const [selectedMetric, setSelectedMetric] = useState("wind");
   const [selectedRange, setSelectedRange] = useState("24h");
+  const [customDateRange, setCustomDateRange] = useState<{ from: Date; to: Date } | null>(null);
   const infoRef = useRef<HTMLDivElement | null>(null);
+  
+  const availableMetrics = [
+    { value: 'wind', label: 'Wind speed' },
+    { value: 'temp', label: 'Water temperature' },
+    { value: 'level', label: 'Water level' }
+  ];
   // Mapping Time Range -> Stunden für historischen Abruf
-  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
-  const hours = rangeToHours[selectedRange] || 24;
+  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30, 'custom': 24 * 30 };
+  
+  // Berechne Stunden basierend auf Auswahl
+  let hours = rangeToHours[selectedRange] || 24;
+  
+  // Wenn Custom Range ausgewählt ist, berechne Stunden basierend auf dem Datum
+  if (selectedRange === 'custom' && customDateRange) {
+    const diffTime = Math.abs(customDateRange.to.getTime() - customDateRange.from.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    hours = diffDays * 24;
+  }
 
   // Historische Reihen (Temperature/Level über TWL Box, Wind über MET Box)
   const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp','temperature','level'], hours);
@@ -89,11 +108,29 @@ export default function TheNewportMarinaLuebeckPage() {
   } else if (selectedMetric === 'level') {
     chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: formatDateTime(s.time), level: s.value })) : [];
   }
+  
+  // Filter data based on custom date range if selected
+  if (selectedRange === 'custom' && customDateRange) {
+    chartData = chartData.filter(item => {
+      if (typeof item.time === 'string') {
+        const itemDate = new Date(item.time);
+        return itemDate >= customDateRange.from && itemDate <= customDateRange.to;
+      }
+      return true;
+    });
+  }
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   useEffect(() => {
     const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); };
     update(); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update);
   }, []);
+
+  const handleTimeRangeChange = (range: string, customRange?: { from: Date; to: Date }) => {
+    setSelectedRange(range);
+    if (customRange) {
+      setCustomDateRange(customRange);
+    }
+  };
 
   const toCardinal = (deg: number) => {
     const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
@@ -124,39 +161,19 @@ export default function TheNewportMarinaLuebeckPage() {
             </div>
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-            {metId && (
-              <>
-              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Wind speed</h3>
-                <p className="text-2xl font-bold text-[var(--primary)]">{windVal ? `${Number(windVal.value).toFixed(1)} m/s` : (metLoading ? 'Loading…' : 'n/a')}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+            {/* WindSpeedCard - Combined Wind Speed and Direction */}
+            {metId && windVal && windDirVal && (
+              <div className="flex justify-center">
+                <WindSpeedCard
+                  average={Number(windVal.value)}
+                  direction={Number(windDirVal.value)}
+                  label={toCardinal(Number(windDirVal.value))}
+                  time={windVal.time ? new Date(windVal.time).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : undefined}
+                />
               </div>
-              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Wind direction</h3>
-                {windDirVal ? (
-                  <div className="flex items-center gap-4">
-                    <div className="text-2xl font-bold text-[var(--primary)]">
-                      {Number(windDirVal.value).toFixed(0)}°
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
-                        {toCardinal(Number(windDirVal.value))}
-                      </div>
-                    </div>
-                    <div className="w-12 h-12 flex items-center justify-center relative">
-                      <div className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center">
-                        <div
-                          className="w-0 h-0 border-l-4 border-r-4 border-b-[14px] border-l-transparent border-r-transparent border-b-[var(--primary)]"
-                          style={{ transform: `rotate(${Number(windDirVal.value)}deg)` }}
-                          aria-label="Wind direction arrow"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-2xl font-bold text-[var(--primary)]">{metLoading ? 'Loading…' : 'n/a'}</p>
-                )}
-              </div>
-              </>
             )}
+            
             {twlId && (
               <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-2">Water temperature</h3>
@@ -170,55 +187,15 @@ export default function TheNewportMarinaLuebeckPage() {
               </div>
             )}
           </div>
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-              <div className="flex items-center gap-3">
-                <label className="font-semibold">Time range:</label>
-                <ToggleGroup type="single" value={selectedRange} onValueChange={(value) => value && setSelectedRange(value)}>
-                  <ToggleGroupItem value="24h">24h</ToggleGroupItem>
-                  <ToggleGroupItem value="7d">7d</ToggleGroupItem>
-                  <ToggleGroupItem value="30d">30d</ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-              <div className="flex gap-2">
-                <label className="font-semibold">Metric:</label>
-                <select
-                  className="border rounded px-2 py-1 dark:bg-zinc-800"
-                  value={selectedMetric}
-                  onChange={e => setSelectedMetric(e.target.value)}
-                >
-                  <option value="wind">Wind speed</option>
-                  <option value="temp">Water temperature</option>
-                  <option value="level">Water level</option>
-                </select>
-              </div>
-            </div>
-            <div className="w-full h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                {(twlSeriesLoading || metSeriesLoading) ? (
-                  <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">Loading series…</div>
-                ) : (
-                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid vertical horizontal={false} stroke="currentColor" strokeOpacity={0.15} strokeDasharray="2 2" />
-                    <XAxis dataKey="time" tickLine={false} height={70} interval="preserveStartEnd" tick={<RotatedDateTick angle={-30} offsetY={24} />} />
-                    <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => {
-                      if (selectedMetric === 'temp') return `${Number(v).toFixed(1)} °C`;
-                      if (selectedMetric === 'level') return `${Number(v).toFixed(2)} m`;
-                      if (selectedMetric === 'wind') return `${Number(v).toFixed(1)} m/s`;
-                      return v as any;
-                    }} />
-                    <Tooltip formatter={(value: number | string) => {
-                      if (selectedMetric === 'temp') return [`${Number(value).toFixed(1)} °C`, 'Temperature'];
-                      if (selectedMetric === 'level') return [`${Number(value).toFixed(2)} m`, 'Level'];
-                      if (selectedMetric === 'wind') return [`${Number(value).toFixed(1)} m/s`, 'Wind'];
-                      return [value, ''];
-                    }} labelFormatter={(l) => l} />
-                    <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
-                  </AreaChart>
-                )}
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <StationChart
+            chartData={chartData}
+            selectedMetric={selectedMetric}
+            onMetricChange={setSelectedMetric}
+            onTimeRangeChange={handleTimeRangeChange}
+            loading={twlSeriesLoading || metSeriesLoading}
+            availableMetrics={availableMetrics}
+            initialTimeRange={selectedRange}
+          />
         </div>
       </SidebarInset>
     </SidebarProvider>

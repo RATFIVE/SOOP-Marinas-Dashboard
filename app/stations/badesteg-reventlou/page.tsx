@@ -6,10 +6,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { formatDateTime } from '@/lib/utils';
 import useThingObservations, { useThingSeries } from '@/lib/useFrost';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import RotatedDateTick from '@/components/chart-axis-tick';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { StationChart } from '@/components/ui/station-chart';
 import StationMapCard from '@/components/station-map-card';
 
 function slugify(name: string) {
@@ -24,9 +21,37 @@ function slugify(name: string) {
 }
 
 export default function BadestegReventlouPage() {
+  const [selectedMetric, setSelectedMetric] = useState("temp");
+  const [selectedRange, setSelectedRange] = useState("24h");
   const station = stations.find((s) => slugify(s.name) === 'badesteg-reventlou') || stations[0];
   const twlId = station['twlbox-id'] || '';
   const { loading: twlLoading, observations: twlObs } = useThingObservations(twlId || null);
+
+  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
+  const [customDateRange, setCustomDateRange] = useState<{ from: Date; to: Date } | null>(null);
+  
+  const getHoursFromRange = (range: string) => {
+    if (range === 'custom' && customDateRange) {
+      const timeDiff = customDateRange.to.getTime() - customDateRange.from.getTime();
+      return Math.ceil(timeDiff / (1000 * 60 * 60));
+    }
+    return rangeToHours[range] || 24;
+  };
+  
+  const hours = getHoursFromRange(selectedRange);
+  
+  const handleTimeRangeChange = (range: string, customRange?: { from: Date; to: Date }) => {
+    setSelectedRange(range);
+    if (range === 'custom' && customRange) {
+      setCustomDateRange(customRange);
+    } else {
+      setCustomDateRange(null);
+    }
+  };
+  
+  const availableMetrics = [
+    { value: 'temp', label: 'Water temperature' }
+  ];
 
   type Obs = { result?: number | string; phenomenonTime?: string } | null;
   const getLatestValue = (obsMap: Record<string, Obs> | null | undefined, preferKeywords: string[]) => {
@@ -59,22 +84,14 @@ export default function BadestegReventlouPage() {
   };
 
   const tempVal = twlId ? getLatestValue(adaptObsMap(twlObs), ['temperature', 'water temperature', 'watertemperature', 'waterTemp', 'temp']) : null;
-  const [selectedRange, setSelectedRange] = useState("24h");
   const infoRef = useRef<HTMLDivElement | null>(null);
-  // Map ausgewählte Range in Stunden & lade Zeitreihe dynamisch vom FROST Server
-  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
-  const hours = rangeToHours[selectedRange] || 24;
   const { loading: seriesLoading, error: seriesError, series } = useThingSeries(twlId || null, ['temp', 'temperature'], hours);
-  const chartData = (series && series.length > 0) ? series.map(s => ({ time: formatDateTime(s.time), temp: s.value })) : [];
-  const yDomain = useMemo(() => {
-    if (!chartData.length) return [0, 1] as [number, number];
-    const values = chartData.map(d => typeof d.temp === 'number' ? d.temp : Number(d.temp)).filter(v => !isNaN(v));
-    if (!values.length) return [0,1] as [number, number];
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const pad = ((max - min) || 1) * 0.1;
-    return [Number((min - pad).toFixed(2)), Number((max + pad).toFixed(2))] as [number, number];
-  }, [chartData]);
+  
+  let chartData: Array<Record<string, string | number>> = [];
+  if (selectedMetric === 'temp') {
+    chartData = (series && series.length > 0) ? series.map(s => ({ time: formatDateTime(s.time), temp: s.value })) : [];
+  }
+  
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   useEffect(() => { const update = () => { const h = infoRef.current?.getBoundingClientRect().height ?? 0; if (h && h > 0) setInfoHeight(Math.round(h)); }; update(); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update); }, []);
   const sidebarStyle: React.CSSProperties & Record<string, string> = {
@@ -119,37 +136,16 @@ export default function BadestegReventlouPage() {
               </div>
             )}
           </div>
-          {/* Area Chart Kachel */}
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <div className="flex items-center gap-3">
-                <label className="font-semibold">Time range:</label>
-                <ToggleGroup type="single" value={selectedRange} onValueChange={(value) => value && setSelectedRange(value)}>
-                  <ToggleGroupItem value="24h">24h</ToggleGroupItem>
-                  <ToggleGroupItem value="7d">7d</ToggleGroupItem>
-                  <ToggleGroupItem value="30d">30d</ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Metric: Water temperature</div>
-            </div>
-            <div className="w-full h-64">
-              {seriesLoading ? (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Skeleton className="w-full h-48" />
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid vertical horizontal={false} stroke="currentColor" strokeOpacity={0.15} strokeDasharray="2 2" />
-                    <XAxis dataKey="time" tickLine={false} height={70} interval="preserveStartEnd" tick={<RotatedDateTick angle={-30} offsetY={24} />} />
-                    <YAxis domain={yDomain} tick={{ fontSize: 12 }} tickFormatter={(v) => `${Number(v).toFixed(1)} °C`} />
-                    <Tooltip formatter={(value: number | string) => [`${Number(value).toFixed(1)} °C`, 'Temperature']} labelFormatter={(label) => label} />
-                    <Area type="monotone" dataKey="temp" stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
+          
+          <StationChart
+            chartData={chartData}
+            selectedMetric={selectedMetric}
+            onMetricChange={setSelectedMetric}
+            onTimeRangeChange={handleTimeRangeChange}
+            loading={seriesLoading}
+            availableMetrics={availableMetrics}
+            initialTimeRange={selectedRange}
+          />
         </div>
       </SidebarInset>
     </SidebarProvider>

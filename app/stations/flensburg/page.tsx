@@ -11,6 +11,7 @@ import RotatedDateTick from '@/components/chart-axis-tick';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import StationMapCard from '@/components/station-map-card';
+import { StationChart } from '@/components/ui/station-chart';
 
 function slugify(name: string) {
   return name
@@ -50,12 +51,35 @@ export default function FlensburgPage() {
   const tempVal = twlId ? getLatestValue(twlObs as unknown as Record<string, Obs>, ['temperature', 'water temperature', 'watertemperature', 'waterTemp', 'temp']) : null;
   const levelVal = twlId ? getLatestValue(twlObs as unknown as Record<string, Obs>, ['level', 'water level', 'waterlevel', 'height']) : null;
   // salinity entfernt
-  const [selectedMetric, setSelectedMetric] = useState("wind");
+  const [selectedMetric, setSelectedMetric] = useState("temp");
   const [selectedRange, setSelectedRange] = useState("24h");
+  const [customDateRange, setCustomDateRange] = useState<{ from: Date; to: Date } | null>(null);
   const infoRef = useRef<HTMLDivElement | null>(null);
-  // map selectedRange to hours and fetch series from FROST
-  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30 };
-  const hours = rangeToHours[selectedRange] || 24;
+  
+  const availableMetrics = [
+    { value: 'temp', label: 'Water temperature' },
+    { value: 'level', label: 'Water level' }
+  ];
+  
+  // Mapping Time Range -> Stunden für historischen Abruf
+  const rangeToHours: Record<string, number> = { '24h': 24, '7d': 24 * 7, '30d': 24 * 30, 'custom': 24 * 30 };
+  
+  // Berechne Stunden basierend auf Auswahl
+  let hours = rangeToHours[selectedRange] || 24;
+  
+  // Wenn Custom Range ausgewählt ist, berechne Stunden basierend auf dem Datum
+  if (selectedRange === 'custom' && customDateRange) {
+    const diffTime = Math.abs(customDateRange.to.getTime() - customDateRange.from.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    hours = diffDays * 24;
+  }
+
+  const handleTimeRangeChange = (range: string, customRange?: { from: Date; to: Date }) => {
+    setSelectedRange(range);
+    if (customRange) {
+      setCustomDateRange(customRange);
+    }
+  };
 
   // fetch historical series for twl and met things (hooks called unconditionally)
   const { loading: twlSeriesLoading, error: twlSeriesError, series: twlSeries } = useThingSeries(twlId || null, ['temp', 'temperature', 'level'], hours);
@@ -69,6 +93,17 @@ export default function FlensburgPage() {
     chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: formatDateTime(s.time), temp: s.value })) : [];
   } else if (selectedMetric === 'level') {
     chartData = (twlSeries && twlSeries.length > 0) ? twlSeries.map(s => ({ time: formatDateTime(s.time), level: s.value })) : [];
+  }
+  
+  // Filter data based on custom date range if selected
+  if (selectedRange === 'custom' && customDateRange) {
+    chartData = chartData.filter(item => {
+      if (typeof item.time === 'string') {
+        const itemDate = new Date(item.time);
+        return itemDate >= customDateRange.from && itemDate <= customDateRange.to;
+      }
+      return true;
+    });
   }
   const [infoHeight, setInfoHeight] = useState<number | null>(null);
   const yDomain = useMemo(() => {
@@ -139,61 +174,15 @@ export default function FlensburgPage() {
             )}
             
           </div>
-          {/* Area Chart Kachel */}
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 w-full mt-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-              <div className="flex items-center gap-3">
-                <label className="font-semibold">Time range:</label>
-                <ToggleGroup type="single" value={selectedRange} onValueChange={(value) => value && setSelectedRange(value)}>
-                  <ToggleGroupItem value="24h">24h</ToggleGroupItem>
-                  <ToggleGroupItem value="7d">7d</ToggleGroupItem>
-                  <ToggleGroupItem value="30d">30d</ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-              <div className="flex gap-2">
-                  <label className="font-semibold">Metric:</label>
-                <select
-                  className="border rounded px-2 py-1 dark:bg-zinc-800"
-                  value={selectedMetric}
-                  onChange={e => setSelectedMetric(e.target.value)}
-                >
-                    <option value="wind">Wind speed</option>
-                    <option value="temp">Water temperature</option>
-                    <option value="level">Water level</option>
-                  
-                </select>
-              </div>
-            </div>
-            <div className="w-full h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                  { (twlSeriesLoading || metSeriesLoading) ? (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Skeleton className="w-full h-48" />
-                    </div>
-                  ) : (
-                    <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                      <CartesianGrid vertical horizontal={false} stroke="currentColor" strokeOpacity={0.15} strokeDasharray="2 2" />
-                      <XAxis dataKey="time" tickLine={false} height={70} interval="preserveStartEnd" tick={<RotatedDateTick angle={-30} offsetY={24} />} />
-                      <YAxis domain={yDomain as any} tick={{ fontSize: 12 }} tickFormatter={(v) => {
-                        if (selectedMetric === 'temp') return `${Number(v).toFixed(1)} °C`;
-                        if (selectedMetric === 'level') return `${Number(v).toFixed(2)} m`;
-                        if (selectedMetric === 'wind') return `${Number(v).toFixed(1)} m/s`;
-                        
-                        return v;
-                      }} />
-                      <Tooltip formatter={(value: number | string) => {
-                        if (selectedMetric === 'temp') return [`${Number(value).toFixed(1)} °C`, 'Temperature'];
-                        if (selectedMetric === 'level') return [`${Number(value).toFixed(2)} m`, 'Level'];
-                        if (selectedMetric === 'wind') return [`${Number(value).toFixed(1)} m/s`, 'Wind'];
-                        
-                        return [value, ''];
-                      }} labelFormatter={(l) => l} />
-                      <Area type="monotone" dataKey={selectedMetric} stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
-                    </AreaChart>
-                  )}
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <StationChart
+            chartData={chartData as any}
+            selectedMetric={selectedMetric}
+            onMetricChange={setSelectedMetric}
+            onTimeRangeChange={handleTimeRangeChange}
+            loading={twlSeriesLoading || metSeriesLoading}
+            availableMetrics={availableMetrics}
+            initialTimeRange={selectedRange}
+          />
         </div>
       </SidebarInset>
     </SidebarProvider>
