@@ -10,6 +10,7 @@ const sidebarStyle: CSSProperties & Record<string, string> = {
   "--header-height": "calc(var(--spacing) * 12)",
 } as unknown as CSSProperties & Record<string, string>;
 import stationData from "@/data/station.json";
+import typedStations from '@/lib/station';
 type RawStation = {
   name: string;
   location?: { coordinates?: number[] };
@@ -17,6 +18,7 @@ type RawStation = {
   phone?: string;
   website?: string;
   info?: string;
+  status?: 'online' | 'offline';
 };
 import StationCard from "@/components/station-card";
 import { useRouter } from 'next/navigation';
@@ -39,17 +41,17 @@ interface Station {
   wind: string;
   temp: string;
   water: string;
+  status: 'online' | 'offline';
 }
 
-const rawStations = ((stationData as unknown as { stations?: RawStation[] }).stations || []);
-const stations: Station[] = rawStations.map((s) => ({
+const stations: Station[] = typedStations.map((s) => ({
   name: s.name,
   slug: slugify(s.name),
   position: Array.isArray(s.location?.coordinates) ? `${s.location.coordinates[0]}, ${s.location.coordinates[1]}` : "",
   wind: "—",
   temp: "—",
   water: "—",
-  
+  status: s.status || 'offline',
 }));
 
 export default function StationsPage() {
@@ -73,7 +75,7 @@ export default function StationsPage() {
                         name={station.name}
                         lat={Number.isFinite(coords[0]) ? coords[0] : 0}
                         lon={Number.isFinite(coords[1]) ? coords[1] : 0}
-                        online={true}
+                        online={station.status === 'online'}
                         metrics={[
                           { label: "Average wind", value: station.wind },
                           { label: "Temperature", value: station.temp },

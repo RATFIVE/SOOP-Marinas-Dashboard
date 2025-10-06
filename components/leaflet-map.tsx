@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import stationData from "@/data/station.json";
+import typedStations from '@/lib/station';
 import { useRouter } from "next/navigation";
 import StationCard from "@/components/station-card";
 import { createRoot, Root } from "react-dom/client";
@@ -92,12 +93,12 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 7, heig
     L.tileLayer(tileUrl, { maxZoom: 19, attribution }).addTo(map);
 
     // add markers
-    const stations = ((stationData as any).stations || []).filter((s: any) => s.location?.coordinates?.length >= 2);
+    const stations = typedStations.filter(s => s.location?.coordinates && s.location.coordinates.length >= 2);
     const markers: L.Marker[] = [];
 
     const popupRoots: Root[] = [];
 
-    function addStation(lat: number, lon: number, name: string, info?: string) {
+    function addStation(lat: number, lon: number, name: string, status: 'online' | 'offline' = 'offline', info?: string) {
       const marker = L.marker([lat, lon], { icon: stationIcon }).addTo(map);
       markers.push(marker);
 
@@ -116,7 +117,7 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 7, heig
           name={name}
           lat={lat}
           lon={lon}
-          online={true}
+          online={status === 'online'}
           metrics={metrics}
           lastUpdateISO={new Date().toISOString()}
           compact
@@ -130,8 +131,10 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 7, heig
       addStation(center[0], center[1], "Station");
     } else {
       for (const s of stations) {
-        const [lat, lon] = [Number(s.location.coordinates[0]), Number(s.location.coordinates[1])];
-        addStation(lat, lon, s.name || "Station", s.info);
+        if (s.location?.coordinates && s.location.coordinates.length >= 2) {
+          const [lat, lon] = [Number(s.location.coordinates[0]), Number(s.location.coordinates[1])];
+          addStation(lat, lon, s.name || "Station", s.status || 'offline', s.info);
+        }
       }
     }
 

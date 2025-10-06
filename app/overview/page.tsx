@@ -7,7 +7,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import dynamic from "next/dynamic";
 import stationData from '@/data/station.json';
-type RawStation = { name: string; location?: { coordinates?: number[] } };
+import typedStations from '@/lib/station';
+type RawStation = { name: string; location?: { coordinates?: number[] }; status?: 'online' | 'offline' };
 import StationCard from "@/components/station-card";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -60,7 +61,7 @@ export default function OverviewPage() {
   }, []);
 
   useEffect(() => {
-    const stations = (stationData as unknown as { stations?: RawStation[] }).stations || [];
+    const stations = typedStations;
     if (userPos) {
       let best = null;
       let bestDist = Infinity;
@@ -111,7 +112,7 @@ export default function OverviewPage() {
                             name={s.name}
                             lat={coords[0] ?? 0}
                             lon={coords[1] ?? 0}
-                            online={true}
+                            online={s.status === 'online'}
                             metrics={[
                               { label: 'Average wind', value: '—' },
                               { label: 'Temperature', value: '—' },

@@ -10,6 +10,7 @@ export type Station = {
   location?: GeoLocation;
   'twlbox-id'?: string;
   'metbox-id'?: string;
+  status?: 'online' | 'offline';
 };
 
 import stationJson from '@/data/station.json';
