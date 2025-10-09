@@ -26,7 +26,7 @@
 				"type": "Point",
 				"coordinates": [54.792324, 9.43771]
 			},
-			"status": "offline"
+			"status": "online"
 		},
 		{
 			"name": "Kappeln",
@@ -54,7 +54,7 @@
 				"type": "Point",
 				"coordinates": [53.872938, 10.682379]
 			},
-			"status": "offline"
+			"status": "online"
 		},
 		{
 			"name": "Schilksee",
