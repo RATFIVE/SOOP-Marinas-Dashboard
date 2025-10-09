@@ -38,7 +38,7 @@ const greenMarkerSvg = encodeURIComponent(
 
 // custom grey pin (SVG) for offline stations  
 const greyMarkerSvg = encodeURIComponent(
-  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='#6b7280' d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle fill='#ffffff' cx='12' cy='9' r='3.5'/></svg>"
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='#9ca3af' d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle fill='#ffffff' cx='12' cy='9' r='3.5'/></svg>"
 );
 
 const onlineStationIcon = L.icon({
