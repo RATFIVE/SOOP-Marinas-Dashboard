@@ -55,7 +55,7 @@ export default function CompassCard({
               <circle
                 cx="100"
                 cy="100"
-                r="90"
+                r="80"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
@@ -66,7 +66,7 @@ export default function CompassCard({
               <circle
                 cx="100"
                 cy="100"
-                r="75"
+                r="65"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1"
@@ -84,9 +84,9 @@ export default function CompassCard({
                   <line
                     key={angle}
                     x1="100"
-                    y1="10"
+                    y1="20"
                     x2="100"
-                    y2={10 + tickLength}
+                    y2={20 + tickLength}
                     stroke="currentColor"
                     strokeWidth={strokeWidth}
                     className={isMajor ? "text-gray-600 dark:text-gray-400" : "text-gray-400 dark:text-gray-600"}
@@ -95,11 +95,11 @@ export default function CompassCard({
                 );
               })}
               
-              {/* Himmelsrichtungen Labels */}
-              <text x="100" y="25" textAnchor="middle" className="text-sm font-bold fill-current text-red-600 dark:text-red-400">N</text>
-              <text x="175" y="105" textAnchor="middle" className="text-sm font-bold fill-current text-gray-600 dark:text-gray-400">O</text>
-              <text x="100" y="185" textAnchor="middle" className="text-sm font-bold fill-current text-gray-600 dark:text-gray-400">S</text>
-              <text x="25" y="105" textAnchor="middle" className="text-sm font-bold fill-current text-gray-600 dark:text-gray-400">W</text>
+              {/* Himmelsrichtungen Labels außerhalb des Kreises */}
+              <text x="100" y="12" textAnchor="middle" className="text-sm font-bold fill-current text-red-600 dark:text-red-400">N</text>
+              <text x="188" y="105" textAnchor="middle" className="text-sm font-bold fill-current text-gray-600 dark:text-gray-400">O</text>
+              <text x="100" y="192" textAnchor="middle" className="text-sm font-bold fill-current text-gray-600 dark:text-gray-400">S</text>
+              <text x="12" y="105" textAnchor="middle" className="text-sm font-bold fill-current text-gray-600 dark:text-gray-400">W</text>
               
               {/* Kompass-Nadel */}
               {isValidDirection && (
@@ -112,7 +112,7 @@ export default function CompassCard({
                     x1="100"
                     y1="100"
                     x2="100"
-                    y2="35"
+                    y2="45"
                     stroke="currentColor"
                     strokeWidth="3"
                     className="text-red-600 dark:text-red-400"
@@ -121,7 +121,7 @@ export default function CompassCard({
                   
                   {/* Pfeilspitze */}
                   <polygon
-                    points="100,30 95,45 105,45"
+                    points="100,40 95,55 105,55"
                     fill="currentColor"
                     className="text-red-600 dark:text-red-400"
                   />
@@ -131,7 +131,7 @@ export default function CompassCard({
                     x1="100"
                     y1="100"
                     x2="100"
-                    y2="155"
+                    y2="145"
                     stroke="currentColor"
                     strokeWidth="2"
                     className="text-gray-500 dark:text-gray-400"
