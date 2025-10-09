@@ -59,7 +59,7 @@ export default function CompassCard({
 
   return (
     <Card className={cn(
-      "relative w-full min-w-[200px] max-w-[280px] h-[200px] md:h-[280px] bg-white dark:bg-zinc-900 shadow-md rounded-lg border hover:shadow-lg transition-shadow duration-200",
+      "relative w-full min-w-[220px] max-w-[320px] h-[220px] md:h-[320px] bg-white dark:bg-zinc-900 shadow-md rounded-lg border hover:shadow-lg transition-shadow duration-200",
       className
     )}>
       <CardContent className="relative p-4 h-full">
@@ -84,15 +84,19 @@ export default function CompassCard({
           )}
           <Badge 
             variant={isOnline ? "default" : "destructive"} 
-            className="text-[10px] px-1 py-0 mt-1"
+            className={`text-[10px] px-1 py-0 mt-1 ${
+              isOnline 
+                ? "bg-green-500 hover:bg-green-600 text-white" 
+                : ""
+            }`}
           >
             {isOnline ? "Online" : "Offline"}
           </Badge>
         </div>
 
         {/* Center - Kompass */}
-        <div className="absolute inset-0 flex items-center justify-center mt-4 mb-16">
-          <div className="relative w-24 h-24 md:w-28 md:h-28">
+        <div className="absolute left-1/2 transform -translate-x-1/2 top-16 flex items-center justify-center">
+          <div className="relative w-36 h-36 md:w-44 md:h-44">
             {/* SVG Kompass */}
             <svg
               viewBox="0 0 200 200"
@@ -205,7 +209,7 @@ export default function CompassCard({
         </div>
 
         {/* Wind Messwerte - Links und Rechts unterhalb des Kompass */}
-        <div className="absolute bottom-12 left-4 right-4">
+        <div className="absolute bottom-16 left-4 right-4">
           <div className="grid grid-cols-2 gap-4">
             {/* Wind Speed - Links */}
             <div className="text-left">
@@ -226,10 +230,10 @@ export default function CompassCard({
         </div>
 
         {/* Unten - Trennlinie */}
-        <div className="absolute bottom-8 left-4 right-4 border-t border-gray-200 dark:border-gray-700"></div>
+        <div className="absolute bottom-12 left-4 right-4 border-t border-gray-200 dark:border-gray-700"></div>
 
         {/* Unten - Timestamp */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <span className="text-xs text-gray-500 dark:text-gray-400">
             {formattedTimestamp}
           </span>

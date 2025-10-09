@@ -71,7 +71,7 @@ export default function MeasurementCard({
 
   return (
     <Card className={cn(
-      "relative w-full min-w-[200px] max-w-[280px] h-[200px] md:h-[280px] bg-white dark:bg-zinc-900 shadow-md rounded-lg border hover:shadow-lg transition-shadow duration-200",
+      "relative w-full min-w-[220px] max-w-[320px] h-[220px] md:h-[320px] bg-white dark:bg-zinc-900 shadow-md rounded-lg border hover:shadow-lg transition-shadow duration-200",
       className
     )}>
       <CardContent className="relative p-4 h-full">
@@ -96,7 +96,11 @@ export default function MeasurementCard({
           )}
           <Badge 
             variant={isOnline ? "default" : "destructive"} 
-            className="text-[10px] px-1 py-0 mt-1"
+            className={`text-[10px] px-1 py-0 mt-1 ${
+              isOnline 
+                ? "bg-green-500 hover:bg-green-600 text-white" 
+                : ""
+            }`}
           >
             {isOnline ? "Online" : "Offline"}
           </Badge>

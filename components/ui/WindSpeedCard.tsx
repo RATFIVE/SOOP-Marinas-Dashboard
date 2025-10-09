@@ -24,7 +24,7 @@ const WindSpeedCard: React.FC<WindSpeedCardProps> = ({
       title="Wind Compass"
       timestamp={time ? new Date() : undefined}
       isOnline={true}
-      className="w-full min-w-[200px] max-w-[280px] h-[200px] md:h-[280px]"
+      className="w-full min-w-[220px] max-w-[320px] h-[220px] md:h-[320px]"
     />
   );
 };
