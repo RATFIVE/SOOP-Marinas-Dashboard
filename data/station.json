@@ -40,7 +40,7 @@
 				"type": "Point",
 				"coordinates": [54.671196, 9.941012]
 			},
-			"status": "offline"
+			"status": "online"
 		},
 		{
 			"name": "The Newport Marina, Lübeck",
@@ -68,7 +68,7 @@
 				"type": "Point",
 				"coordinates": [54.429556, 10.1711]
 			},
-			"status": "offline"
+			"status": "online"
 		},
 		{
 			"name": "Marina Heiligenhafen",
@@ -82,7 +82,7 @@
 				"type": "Point",
 				"coordinates": [54.37381, 10.98585]
 			},
-			"status": "offline"
+			"status": "online"
 		}
 	]
 
