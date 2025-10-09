@@ -9,6 +9,7 @@ import { getSidebarStyle } from '@/lib/ui';
 import useThingObservations, { useThingSeries } from '@/lib/useFrost';
 import { StationChart } from '@/components/ui/station-chart';
 import StationMapCard from '@/components/station-map-card';
+import MeasurementCard from '@/components/ui/measurement-card';
 
 function slugify(name: string) {
   return name
@@ -141,17 +142,38 @@ export default function SchilkseePage() {
             </div>
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-            {/* Wind speed Kachel entfernt laut Anforderung */}
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2 text-[var(--primary)]">Water temperature</h3>
-              <p className="text-2xl font-bold text-[var(--primary)]">{tempVal ? `${Number(tempVal.value).toFixed(1)} °C` : (twlLoading ? 'Loading…' : 'n/a')}</p>
-            </div>
-            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Water level</h3>
-              <p className="text-2xl font-bold">{levelVal ? `${Number(levelVal.value).toFixed(2)} m` : (twlLoading ? 'Loading…' : 'n/a')}</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+            {/* Water Temperature */}
+            <MeasurementCard
+              type="temperature"
+              title="Water Temperature"
+              value={tempVal ? Number(tempVal.value) : null}
+              unit="°C"
+              timestamp={tempVal?.time}
+              isOnline={!twlLoading && !!tempVal}
+            />
             
+            {/* Water Level */}
+            <MeasurementCard
+              type="level"
+              title="Water Level"
+              value={levelVal ? Number(levelVal.value) : null}
+              unit="m"
+              timestamp={levelVal?.time}
+              isOnline={!twlLoading && !!levelVal}
+            />
+            
+            {/* Wind Speed */}
+            {metId && windVal && (
+              <MeasurementCard
+                type="wind-speed"
+                title="Wind Speed"
+                value={Number(windVal.value)}
+                unit="m/s"
+                timestamp={windVal.time}
+                isOnline={!metLoading && !!windVal}
+              />
+            )}
           </div>
           
           <StationChart

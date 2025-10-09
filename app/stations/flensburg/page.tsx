@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import StationMapCard from '@/components/station-map-card';
 import { StationChart } from '@/components/ui/station-chart';
+import MeasurementCard from '@/components/ui/measurement-card';
 
 function slugify(name: string) {
   return name
@@ -158,21 +159,30 @@ export default function FlensburgPage() {
             </div>
           </div>
           <h2 className="text-xl font-bold mt-8 mb-2 w-full">Measurements</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-            {/* Wind speed Kachel entfernt laut Anforderung */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+            {/* Water Temperature */}
             {twlId && (
-              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Water temperature</h3>
-                <p className="text-2xl font-bold text-[var(--primary)]">{tempVal ? `${Number(tempVal.value).toFixed(1)} °C` : (twlLoading ? 'Loading…' : 'n/a')}</p>
-              </div>
-            )}
-            {twlId && (
-              <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold mb-2">Water level</h3>
-                <p className="text-2xl font-bold text-[var(--primary)]">{levelVal ? `${Number(levelVal.value).toFixed(2)} m` : (twlLoading ? 'Loading…' : 'n/a')}</p>
-              </div>
+              <MeasurementCard
+                type="temperature"
+                title="Water Temperature"
+                value={tempVal ? Number(tempVal.value) : null}
+                unit="°C"
+                timestamp={tempVal?.time}
+                isOnline={!twlLoading && !!tempVal}
+              />
             )}
             
+            {/* Water Level */}
+            {twlId && (
+              <MeasurementCard
+                type="level"
+                title="Water Level"
+                value={levelVal ? Number(levelVal.value) : null}
+                unit="m"
+                timestamp={levelVal?.time}
+                isOnline={!twlLoading && !!levelVal}
+              />
+            )}
           </div>
           <StationChart
             chartData={chartData as any}
