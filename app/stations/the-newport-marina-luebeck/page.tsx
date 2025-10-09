@@ -165,14 +165,12 @@ export default function TheNewportMarinaLuebeckPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
             {/* WindSpeedCard - Combined Wind Speed and Direction */}
             {metId && windVal && windDirVal && (
-              <div className="flex justify-center">
-                <WindSpeedCard
-                  average={Number(windVal.value)}
-                  direction={Number(windDirVal.value)}
-                  label={toCardinal(Number(windDirVal.value))}
-                  time={windVal.time ? new Date(windVal.time).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : undefined}
-                />
-              </div>
+              <WindSpeedCard
+                average={Number(windVal.value)}
+                direction={Number(windDirVal.value)}
+                label={toCardinal(Number(windDirVal.value))}
+                time={windVal.time ? new Date(windVal.time).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : undefined}
+              />
             )}
             
             {/* Water Temperature */}
@@ -196,18 +194,6 @@ export default function TheNewportMarinaLuebeckPage() {
                 unit="m"
                 timestamp={levelVal?.time}
                 isOnline={!twlLoading && !!levelVal}
-              />
-            )}
-            
-            {/* Wind Speed */}
-            {metId && windVal && (
-              <MeasurementCard
-                type="wind-speed"
-                title="Wind Speed"
-                value={Number(windVal.value)}
-                unit="m/s"
-                timestamp={windVal.time}
-                isOnline={!metLoading && !!windVal}
               />
             )}
           </div>

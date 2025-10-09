@@ -3,22 +3,29 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Navigation, Wifi, WifiOff } from 'lucide-react';
 import { degToCardinal, formatWindSpeed } from '@/lib/deg-to-cardinal';
 import { cn } from '@/lib/utils';
 
 export type CompassCardProps = {
   windFromDeg: number | null | undefined; // 0–360, Richtung AUS der der Wind kommt
   windSpeed?: number | null;              // optional, in m/s (Standard) oder km/h
+  windDirection?: number | null;          // Windrichtung in Grad (für separate Anzeige)
   unit?: 'm/s' | 'km/h';                  // Default: 'm/s'
   title?: string;                         // Default: 'Wind'
+  timestamp?: Date | string | null;       // Zeitstempel der Messung
+  isOnline?: boolean;                     // Online-Status
   className?: string;                     // zusätzliche Styles
 };
 
 export default function CompassCard({
   windFromDeg,
   windSpeed,
+  windDirection,
   unit = 'm/s',
   title = 'Wind',
+  timestamp,
+  isOnline = true,
   className
 }: CompassCardProps) {
   // Validierung der Eingabewerte
@@ -30,17 +37,62 @@ export default function CompassCard({
   
   // Formatierte Geschwindigkeit
   const formattedSpeed = isValidSpeed ? formatWindSpeed(windSpeed, unit) : null;
+  
+  // Zeitstempel formatieren
+  const formatTimestamp = (ts: Date | string | null | undefined): string => {
+    if (!ts) return "Keine Daten";
+    
+    const date = typeof ts === 'string' ? new Date(ts) : ts;
+    if (isNaN(date.getTime())) return "Ungültiges Datum";
+    
+    // Deutsches Format: DD.MM.YYYY • HH:mm
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}.${month}.${year} • ${hours}:${minutes}`;
+  };
+
+  const formattedTimestamp = formatTimestamp(timestamp);
 
   return (
-    <Card className={cn("w-full max-w-sm mx-auto", className)}>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-center text-lg font-semibold">{title}</CardTitle>
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        {/* Kompass-Bereich */}
-        <div className="flex justify-center">
-          <div className="relative w-48 h-48">
+    <Card className={cn(
+      "relative w-full min-w-[200px] max-w-[280px] h-[200px] md:h-[280px] bg-white dark:bg-zinc-900 shadow-md rounded-lg border hover:shadow-lg transition-shadow duration-200",
+      className
+    )}>
+      <CardContent className="relative p-4 h-full">
+        {/* Links Oben - Navigation Icon */}
+        <div className="absolute top-4 left-4">
+          <Navigation size={20} className="text-blue-600 dark:text-blue-400" />
+        </div>
+
+        {/* Oben Mitte - Title */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {title}
+          </span>
+        </div>
+
+        {/* Oben Rechts - Online Status */}
+        <div className="absolute top-4 right-4 flex flex-col items-center">
+          {isOnline ? (
+            <Wifi size={16} className="text-green-500" />
+          ) : (
+            <WifiOff size={16} className="text-red-500" />
+          )}
+          <Badge 
+            variant={isOnline ? "default" : "destructive"} 
+            className="text-[10px] px-1 py-0 mt-1"
+          >
+            {isOnline ? "Online" : "Offline"}
+          </Badge>
+        </div>
+
+        {/* Center - Kompass */}
+        <div className="absolute inset-0 flex items-center justify-center mt-4 mb-16">
+          <div className="relative w-24 h-24 md:w-28 md:h-28">
             {/* SVG Kompass */}
             <svg
               viewBox="0 0 200 200"
@@ -151,38 +203,36 @@ export default function CompassCard({
             </svg>
           </div>
         </div>
-        
-        {/* Info-Bereich */}
-        <div className="space-y-2">
-          {/* Richtung und Grad */}
-          {isValidDirection ? (
-            <div className="text-center">
-              <Badge variant="secondary" className="text-sm font-medium">
-                {cardinal} ({windFromDeg}°)
-              </Badge>
-            </div>
-          ) : (
-            <div className="text-center">
-              <Badge variant="outline" className="text-sm">
-                —
-              </Badge>
-            </div>
-          )}
-          
-          {/* Windgeschwindigkeit */}
-          {isValidSpeed ? (
-            <div className="text-center">
-              <div className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                {formattedSpeed}
+
+        {/* Wind Messwerte - Links und Rechts unterhalb des Kompass */}
+        <div className="absolute bottom-12 left-4 right-4">
+          <div className="grid grid-cols-2 gap-4">
+            {/* Wind Speed - Links */}
+            <div className="text-left">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Speed</div>
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                {isValidSpeed ? formattedSpeed : "— " + unit}
               </div>
             </div>
-          ) : (
-            <div className="text-center">
-              <div className="text-lg text-gray-400 dark:text-gray-600">
-                — {unit}
+            
+            {/* Wind Direction - Rechts */}
+            <div className="text-right">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Direction</div>
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                {isValidDirection ? `${cardinal} (${windFromDeg}°)` : "—"}
               </div>
             </div>
-          )}
+          </div>
+        </div>
+
+        {/* Unten - Trennlinie */}
+        <div className="absolute bottom-8 left-4 right-4 border-t border-gray-200 dark:border-gray-700"></div>
+
+        {/* Unten - Timestamp */}
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            {formattedTimestamp}
+          </span>
         </div>
       </CardContent>
     </Card>

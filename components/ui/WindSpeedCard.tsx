@@ -21,8 +21,10 @@ const WindSpeedCard: React.FC<WindSpeedCardProps> = ({
       windFromDeg={direction}
       windSpeed={average}
       unit="m/s"
-      title="Windkompass"
-      className="w-[320px]"
+      title="Wind Compass"
+      timestamp={time ? new Date() : undefined}
+      isOnline={true}
+      className="w-full min-w-[200px] max-w-[280px] h-[200px] md:h-[280px]"
     />
   );
 };

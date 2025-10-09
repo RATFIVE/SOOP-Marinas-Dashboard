@@ -157,18 +157,6 @@ export default function KappelnPage() {
                 isOnline={!twlLoading && !!levelVal}
               />
             )}
-            
-            {/* Wind Speed */}
-            {metId && windVal && (
-              <MeasurementCard
-                type="wind-speed"
-                title="Wind Speed"
-                value={Number(windVal.value)}
-                unit="m/s"
-                timestamp={windVal.time}
-                isOnline={!metLoading && !!windVal}
-              />
-            )}
           </div>
           
           <StationChart
