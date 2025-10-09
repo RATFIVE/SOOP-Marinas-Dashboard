@@ -95,8 +95,8 @@ export default function CompassCard({
         </div>
 
         {/* Center - Kompass */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 top-16 flex items-center justify-center">
-          <div className="relative w-36 h-36 md:w-44 md:h-44">
+        <div className="absolute inset-0 flex items-center justify-center mt-8 mb-20">
+          <div className="relative w-32 h-32 md:w-36 md:h-36">
             {/* SVG Kompass */}
             <svg
               viewBox="0 0 200 200"
