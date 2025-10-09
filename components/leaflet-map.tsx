@@ -31,12 +31,25 @@ function slugify(name: string) {
     .replace(/^-|-$/g, "");
 }
 
-// custom green pin (SVG) similar to previous design
-const markerSvg = encodeURIComponent(
-  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='#78D278' d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle fill='#ffffff' cx='12' cy='9' r='3.5'/></svg>"
+// custom green pin (SVG) for online stations
+const greenMarkerSvg = encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='#22c55e' d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle fill='#ffffff' cx='12' cy='9' r='3.5'/></svg>"
 );
-const stationIcon = L.icon({
-  iconUrl: `data:image/svg+xml;utf8,${markerSvg}`,
+
+// custom grey pin (SVG) for offline stations  
+const greyMarkerSvg = encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='#6b7280' d='M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z'/><circle fill='#ffffff' cx='12' cy='9' r='3.5'/></svg>"
+);
+
+const onlineStationIcon = L.icon({
+  iconUrl: `data:image/svg+xml;utf8,${greenMarkerSvg}`,
+  iconSize: [32, 44],
+  iconAnchor: [16, 44],
+  popupAnchor: [0, -44]
+});
+
+const offlineStationIcon = L.icon({
+  iconUrl: `data:image/svg+xml;utf8,${greyMarkerSvg}`,
   iconSize: [32, 44],
   iconAnchor: [16, 44],
   popupAnchor: [0, -44]
@@ -99,7 +112,8 @@ export default function LeafletMap({ center = [54.3233, 10.1228], zoom = 7, heig
     const popupRoots: Root[] = [];
 
     function addStation(lat: number, lon: number, name: string, status: 'online' | 'offline' = 'offline', info?: string) {
-      const marker = L.marker([lat, lon], { icon: stationIcon }).addTo(map);
+      const icon = status === 'online' ? onlineStationIcon : offlineStationIcon;
+      const marker = L.marker([lat, lon], { icon }).addTo(map);
       markers.push(marker);
 
       // React StationCard im Popup rendern, damit Stil identisch zur Kachel ist
