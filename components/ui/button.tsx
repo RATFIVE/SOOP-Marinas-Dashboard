@@ -1,6 +1,9 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { motion, HTMLMotionProps } from "framer-motion"
+import { buttonVariants as motionButtonVariants } from "@/lib/animation-variants"
+import { useReducedMotion } from "@/lib/use-reduced-motion"
 
 import { cn } from "@/lib/utils"
 
@@ -36,25 +39,57 @@ const buttonVariants = cva(
   }
 )
 
+type ButtonProps = React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    animated?: boolean;
+  }
+
 function Button({
   className,
   variant,
   size,
   asChild = false,
+  animated = true,
+  disabled,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
-  const Comp = asChild ? Slot : "button"
+}: ButtonProps) {
+  const prefersReducedMotion = useReducedMotion();
+  
+  if (asChild) {
+    return (
+      <Slot
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      />
+    );
+  }
+
+  if (!animated || prefersReducedMotion) {
+    return (
+      <button
+        className={cn(buttonVariants({ variant, size, className }))}
+        disabled={disabled}
+        {...props}
+      />
+    );
+  }
+
+  const variants = motionButtonVariants;
+  const animate = disabled ? "disabled" : "idle";
 
   return (
-    <Comp
-      data-slot="button"
+    <motion.button
+      variants={variants}
+      initial="idle"
+      animate={animate}
+      whileHover={disabled ? undefined : "hover"}
+      whileTap={disabled ? undefined : "tap"}
       className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
+      disabled={disabled}
+      {...(props as any)}
     />
-  )
+  );
 }
 
 export { Button, buttonVariants }

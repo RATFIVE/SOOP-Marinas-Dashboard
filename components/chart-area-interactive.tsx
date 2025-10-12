@@ -2,6 +2,9 @@
 
 import * as React from "react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { motion } from "framer-motion"
+import { chartVariants } from "@/lib/animation-variants"
+import { useReducedMotion } from "@/lib/use-reduced-motion"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -209,10 +212,16 @@ export function ChartAreaInteractive() {
         </CardAction>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
+        <motion.div
+          variants={chartVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
         >
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-[250px] w-full"
+          >
           <AreaChart data={filteredData}>
             <defs>
               <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
@@ -284,7 +293,8 @@ export function ChartAreaInteractive() {
               stackId="a"
             />
           </AreaChart>
-        </ChartContainer>
+          </ChartContainer>
+        </motion.div>
       </CardContent>
     </Card>
   )

@@ -1,8 +1,11 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import StationCard from "./station-card";
 import { useRouter } from 'next/navigation';
+import { staggerContainer, staggerItem } from "@/lib/animation-variants";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 const stations = [
   {
@@ -69,20 +72,40 @@ const stations = [
 
 export default function StationGridDemo() {
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
+
+  const containerVariants = prefersReducedMotion 
+    ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
+    : staggerContainer;
+
+  const itemVariants = prefersReducedMotion 
+    ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
+    : staggerItem;
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {stations.map((s) => (
-        <StationCard
+    <motion.div 
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-20px" }}
+    >
+      {stations.map((s, index) => (
+        <motion.div
           key={s.name}
-          name={s.name}
-          lat={s.lat}
-          lon={s.lon}
-          online={s.online}
-          metrics={s.metrics}
-          lastUpdateISO={s.lastUpdateISO}
-          onMoreDetails={() => { const base = s.name.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, ''); const slug = (s.name === 'Marina Lübeck "The Newport"' || s.name === 'The Newport Marina, Lübeck') ? 'the-newport-marina-luebeck' : base; try { router.push(`/stations/${slug}`); } catch (e) { /* ignore */ } }}
-        />
+          variants={itemVariants}
+        >
+          <StationCard
+            name={s.name}
+            lat={s.lat}
+            lon={s.lon}
+            online={s.online}
+            metrics={s.metrics}
+            lastUpdateISO={s.lastUpdateISO}
+            onMoreDetails={() => { const base = s.name.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, ''); const slug = (s.name === 'Marina Lübeck "The Newport"' || s.name === 'The Newport Marina, Lübeck') ? 'the-newport-marina-luebeck' : base; try { router.push(`/stations/${slug}`); } catch (e) { /* ignore */ } }}
+          />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

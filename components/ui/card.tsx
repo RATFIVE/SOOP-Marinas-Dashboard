@@ -1,18 +1,79 @@
 import * as React from "react"
+import { motion, HTMLMotionProps } from "framer-motion"
+import { revealVariants } from "@/lib/animation-variants"
+import { useReducedMotion } from "@/lib/use-reduced-motion"
 
 import { cn } from "@/lib/utils"
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+interface CardProps extends React.ComponentProps<"div"> {
+  animated?: boolean;
+  animateOnScroll?: boolean;
+  delay?: number;
+}
+
+function Card({ 
+  className, 
+  animated = false, 
+  animateOnScroll = true, 
+  delay = 0,
+  ...props 
+}: CardProps) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (!animated || prefersReducedMotion) {
+    return (
+      <div
+        data-slot="card"
+        className={cn(
+          "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-lg",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+
+  const variants = {
+    ...revealVariants,
+    visible: {
+      ...revealVariants.visible,
+      transition: {
+        ...revealVariants.visible.transition,
+        delay,
+      }
+    }
+  };
+
+  if (animateOnScroll) {
+    return (
+      <motion.div
+        data-slot="card"
+        variants={variants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        className={cn(
+          "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-lg",
+          className
+        )}
+        {...(props as any)}
+      />
+    );
+  }
+
   return (
-    <div
+    <motion.div
       data-slot="card"
+      variants={variants}
+      initial="hidden"
+      animate="visible"
       className={cn(
-  "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-lg",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-lg",
         className
       )}
-      {...props}
+      {...(props as any)}
     />
-  )
+  );
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
